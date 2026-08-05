@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة وتشكيل التكتلات الذكي | إدارة الحج</title>
+    <style>
+        :root {
+            --primary: #0052cc;
+            --success: #00875a;
+            --danger: #de350b;
+            --warning: #ffab00;
+            --bg: #f4f5f7;
+            --text: #172b4d;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .setup-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        input, select, button {
+            padding: 10px 14px;
+            border: 1px solid #dfe1e6;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #0043a4; }
+        
+        /* لوحة المتابعة وكروت الإداريين */
+        .admin-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .admin-card {
+            background: #fff;
+            border-right: 5px solid var(--primary);
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-details strong { display: block; font-size: 16px; margin-bottom: 4px; }
+        .admin-details span { font-size: 13px; color: #5e6c84; background: #ebecf0; padding: 2px 6px; border-radius: 4px; }
+        
+        .whatsapp-btn {
+            background-color: #25D366;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .whatsapp-btn:hover { background-color: #128C7E; }
+
+        /* حاسبة التكتل الذكية */
+        .calculator-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px dashed var(--primary);
+            margin-top: 20px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+            margin-top: 10px;
+        }
+        .status-valid { background-color: var(--success); }
+        .status-invalid { background-color: var(--danger); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2>🕋 لوحة تشكيل التكتلات والتواصل الميداني الذكي</h2>
+        <div>إدارة الحج وتفويج المشاعر</div>
+    </header>
+
+    <!-- 1. شاشة إضافة وتسجيل إداري معتمد ورقم هاتف -->
+    <div class="setup-section">
+        <h3>📋 تسجيل وتسكين الكوادر الإدارية بالميدان</h3>
+        <div class="grid-3">
+            <input type="text" id="adminName" placeholder="اسم الإداري المعتمد...">
+            <input type="text" id="adminPhone" placeholder="رقم الهاتف (مثال: 966500000000)...">
+            <select id="adminRole">
+                <option value="معاون">معاون</option>
+                <option value="منسق">منسق</option>
+                <option value="موجهة دينية">موجهة دينية</option>
+                <option value="موجه ديني">موجه ديني</option>
+                <option value="رئيس مجموعة">رئيس مجموعة</option>
+                <option value="منسق ومعاون">منسق ومعاون</option>
+            </select>
+        </div>
+        <button onclick="registerAdmin()">➕ تسجيل الإداري وتوليد رابط الواتساب</button>
+        
+        <div class="admin-list" id="adminsContainer">
+            <!-- كروت الكوادر المسجلة مع أزرار الواتساب تظهر هنا -->
+        </div>
+    </div>
+
+    <!-- 2. الحاسبة الآلية لقرارات التكتل -->
+    <div class="setup-section calculator-box">
+        <h3>🧮 الحاسبة الذكية لمطابقة قرار التكتل (12 - 21 فئة)</h3>
+        <p>قم بإدخال عدد فئات التكتل الحالية ليقوم النظام بحساب الكوادر المطلوبة بشكل تلقائي وفوري:</p>
+        <div style="max-width: 300px; margin-bottom: 15px;">
+            <label style="font-weight: bold; display:block; margin-bottom:5px;">إجمالي عدد الفئات بالتكتل الحالي:</label>
+            <input type="number" id="categoriesCount" value="0" min="0" oninput="calculateQuota()">
+        </div>
+
+        <div id="quotaResult" style="line-height: 1.8; font-size: 15px;">
+            يرجى إدخال عدد الفئات لبدء تفعيل شروط القرار التدقيقي آلياً...
+        </div>
+    </div>
+</div>
+
+<script>
+    // مصفوفة مؤقتة لحفظ الإداريين
+    let administrators = [];
+
+    // دالة تسجيل الإداري وتوليد كارت التواصل
+    function registerAdmin() {
+        const nameInput = document.getElementById('adminName');
+        const phoneInput = document.getElementById('adminPhone');
+        const roleSelect = document.getElementById('adminRole');
+
+        if (!nameInput.value.trim() || !phoneInput.value.trim()) {
+            return alert("يرجى تعبئة اسم الإداري ورقم الهاتف أولاً لجلب بيانات الاتصال!");
+        }
+
+        // تنظيف رقم الهاتف من المسافات وعلامة الزائد
+        let cleanPhone = phoneInput.value.replace(/\s+/g, '').replace('+', '');
+        
+        // نص الرسالة التلقائية التوجيهية لرئيس التكتل على الواتساب
+        let messageTemplate = `السلام عليكم ورحمة الله وبركاته.. أخي الإداري المعتمد / ${nameInput.value} بصفتك (${roleSelect.value}) في أعمال الحج، يرجى إفادتنا فوراً بالموقف الميداني لتفويج مجموعتكم الحالية. شاكرين ومقدرين جهودكم.`;
+        let encodedMessage = encodeURIComponent(messageTemplate);
+        
+        // رابط الواتساب المباشر
+        let whatsappURL = `https://wa.me{cleanPhone}?text=${encodedMessage}`;
+
+        const admin = {
+            name: nameInput.value,
+            phone: cleanPhone,
+            role: roleSelect.value,
+            link: whatsappURL
+        };
+
+        administrators.push(admin);
+        renderAdmins();
+
+        // إفراغ الخانات
+        nameInput.value = '';
+        phoneInput.value = '';
+    }
+
+    // عرض كروت الموظفين مع زر الواتساب المباشر
+    function renderAdmins() {
+        const container = document.getElementById('adminsContainer');
+        container.innerHTML = '';
+
+        administrators.forEach(admin => {
+            const card = document.createElement('div');
+            card.className = 'admin-card';
+            card.innerHTML = `
+                <div class="admin-details">
+                    <strong>${admin.name}</strong>
+                    <span>${admin.role}</span>
+                </div>
+                <div>
+                    <a href="${admin.link}" target="_blank" class="whatsapp-btn">
+                        💬 واتساب
+                    </a>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // دالة الفحص التلقائي لمطابقة التكتل مع القرار
+    function calculateQuota() {
+        const count = parseInt(document.getElementById('categoriesCount').value) || 0;
+        const resultBox = document.getElementById('quotaResult');
+
+        if (count === 0) {
+            resultBox.innerHTML = "يرجى إدخال عدد الفئات لبدء تفعيل شروط القرار التدقيقي آلياً...";
+            return;
+        }
+
+        // شروط الحسبة
+        let minCategories = 12;
+        let maxCategories = 21;
+        
+        // حسبة المنسقين والموجهات (عدد الفئات تقسيم 5 وتقريب للأعلى)
+        let requiredCoordinators = Math.ceil(count / 5);
+        let requiredGuides = Math.ceil(count / 5);
+        let requiredAssistant = 1; // ثابت لكل تكتل
+
+        let isSizeValid = (count >= minCategories && count <= maxCategories);
+        let statusClass = isSizeValid ? 'status-valid' : 'status-invalid';
+        let statusText = isSizeValid ? '✅ حالة التكتل: متوافق مع قرار الحج القانوني' : '❌ حالة التكتل: مرفوض (يجب أن يكون حجم التكتل بين 12 و 21 فئة)';
+
+        resultBox.innerHTML = `
+            <div class="status-badge ${statusClass}">${statusText}</div>
+            <ul style="margin-top:15px; padding-right:20px;">
+                <li><b>المعاون الإلزامي للتكتل:</b> ${requiredAssistant} معاون رئيسي.</li>
+                <li><b>عدد المنسقين المطلوبين آلياً للتكتل:</b> يحتاج <span style="color:var(--primary); font-weight:bold;">${requiredCoordinators} منسقين</span> (حسب نسبة 1 لكل 5 فئات).</li>
+                <li><b>عدد الموجهات الدينيات المطلوبة آلياً:</b> يحتاج <span style="color:var(--primary); font-weight:bold;">${requiredGuides} موجهات دينيات</span> (حسب نسبة 1 لكل 5 فئات).</li>
+            </ul>
+        `;
+    }
+</script>
+
+</body>
+</html>

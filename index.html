@@ -3,53 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة متابعة العمل الداخلية</title>
-    
-    <!-- تم تغيير الرابط إلى سيرفر unpkg الأكثر استقراراً لتجنب مشكلة انقطاع الاتصال لديك -->
-	<script src="supabase.js"></script>
-
-
+    <title>نظام إدارة وتشكيل التكتلات الذكي | إدارة الحج</title>
     <style>
         :root {
-            --bg-color: #f4f5f7;
-            --column-bg: #ebecf0;
-            --text-color: #172b4d;
             --primary: #0052cc;
+            --success: #00875a;
+            --danger: #de350b;
+            --warning: #ffab00;
+            --bg: #f4f5f7;
+            --text: #172b4d;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
             padding: 20px;
         }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
         header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #dfe1e6;
         }
-        .form-container {
+        .setup-section {
             background: white;
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
         }
         input, select, button {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 10px 14px;
+            border: 1px solid #dfe1e6;
+            border-radius: 6px;
             font-size: 14px;
             font-family: inherit;
+            width: 100%;
+            box-sizing: border-box;
         }
-        input { flex: 1; min-width: 200px; }
         button {
             background-color: var(--primary);
             color: white;
@@ -58,246 +64,201 @@
             font-weight: bold;
         }
         button:hover { background-color: #0043a4; }
-        .board {
+        
+        /* لوحة المتابعة وكروت الإداريين */
+        .admin-list {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            align-items: start;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
         }
-        @media (max-width: 768px) {
-            .board { grid-template-columns: 1fr; }
-        }
-        .column {
-            background-color: var(--column-bg);
-            border-radius: 8px;
+        .admin-card {
+            background: #fff;
+            border-right: 5px solid var(--primary);
             padding: 15px;
-            min-height: 400px;
-        }
-        .column h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 16px;
-            color: #5e6c84;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .task-list {
-            min-height: 350px;
-        }
-        .task-card {
-            background: white;
-            border-radius: 4px;
-            padding: 12px;
-            margin-bottom: 10px;
-            box-shadow: 0 1px 2px rgba(9,30,66,0.25);
-            cursor: grab;
-        }
-        .task-card:active { cursor: grabbing; }
-        .task-title { font-weight: 600; margin-bottom: 5px; }
-        .task-meta {
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
-            color: #5e6c84;
-            margin-top: 8px;
+            align-items: center;
         }
-        .priority-high { border-right: 4px solid #de350b; }
-        .priority-medium { border-right: 4px solid #ffab00; }
-        .priority-low { border-right: 4px solid #00875a; }
+        .admin-details strong { display: block; font-size: 16px; margin-bottom: 4px; }
+        .admin-details span { font-size: 13px; color: #5e6c84; background: #ebecf0; padding: 2px 6px; border-radius: 4px; }
+        
+        .whatsapp-btn {
+            background-color: #25D366;
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .whatsapp-btn:hover { background-color: #128C7E; }
+
+        /* حاسبة التكتل الذكية */
+        .calculator-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px dashed var(--primary);
+            margin-top: 20px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+            margin-top: 10px;
+        }
+        .status-valid { background-color: var(--success); }
+        .status-invalid { background-color: var(--danger); }
     </style>
 </head>
 <body>
 
+<div class="container">
     <header>
-        <h2>💼 لوحة إدارة المهام الداخلية للشركة</h2>
+        <h2>🕋 لوحة تشكيل التكتلات والتواصل الميداني الذكي</h2>
+        <div>إدارة الحج وتفويج المشاعر</div>
     </header>
 
-    <div class="form-container">
-        <input type="text" id="taskTitle" placeholder="اكتب تفاصيل المهمة هنا..." required />
-        <select id="taskAssignee">
-            <option value="أحمد">أحمد</option>
-            <option value="سارة">سارة</option>
-            <option value="خالد">خالد</option>
-        </select>
-        <select id="taskPriority">
-            <option value="low">أولوية منخفضة</option>
-            <option value="medium">أولوية متوسطة</option>
-            <option value="high">أولوية عالية</option>
-        </select>
-        <button onclick="addNewTask()">＋ إضافة مهمة</button>
-    </div>
-
-    <div class="board">
-        <div class="column">
-            <h3>📋 مهام جديدة</h3>
-            <div class="task-list" id="todo" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    <!-- 1. شاشة إضافة وتسجيل إداري معتمد ورقم هاتف -->
+    <div class="setup-section">
+        <h3>📋 تسجيل وتسكين الكوادر الإدارية بالميدان</h3>
+        <div class="grid-3">
+            <input type="text" id="adminName" placeholder="اسم الإداري المعتمد...">
+            <input type="text" id="adminPhone" placeholder="رقم الهاتف (مثال: 966500000000)...">
+            <select id="adminRole">
+                <option value="معاون">معاون</option>
+                <option value="منسق">منسق</option>
+                <option value="موجهة دينية">موجهة دينية</option>
+                <option value="موجه ديني">موجه ديني</option>
+                <option value="رئيس مجموعة">رئيس مجموعة</option>
+                <option value="منسق ومعاون">منسق ومعاون</option>
+            </select>
         </div>
-        <div class="column">
-            <h3>⚡ قيد التنفيذ</h3>
-            <div class="task-list" id="inprogress" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-        </div>
-        <div class="column">
-            <h3>✅ مكتملة</h3>
-            <div class="task-list" id="done" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <button onclick="registerAdmin()">➕ تسجيل الإداري وتوليد رابط الواتساب</button>
+        
+        <div class="admin-list" id="adminsContainer">
+            <!-- كروت الكوادر المسجلة مع أزرار الواتساب تظهر هنا -->
         </div>
     </div>
 
-    <script>
-        // === [ إعدادات الاتصال المباشر بـ Supabase ] ===
-        const SUPABASE_URL = "https://nkcngzsjevgzurwxkjqn.supabase.co"; 
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rY25nenNqZXZnenVyd3hranFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTQyMTEsImV4cCI6MjEwMTMzMDIxMX0.2UlqfEPT-TCBGnIfHqn1sArX1AOkhRr6zvnQt4evD0U"; 
+    <!-- 2. الحاسبة الآلية لقرارات التكتل -->
+    <div class="setup-section calculator-box">
+        <h3>🧮 الحاسبة الذكية لمطابقة قرار التكتل (12 - 21 فئة)</h3>
+        <p>قم بإدخال عدد فئات التكتل الحالية ليقوم النظام بحساب الكوادر المطلوبة بشكل تلقائي وفوري:</p>
+        <div style="max-width: 300px; margin-bottom: 15px;">
+            <label style="font-weight: bold; display:block; margin-bottom:5px;">إجمالي عدد الفئات بالتكتل الحالي:</label>
+            <input type="number" id="categoriesCount" value="0" min="0" oninput="calculateQuota()">
+        </div>
 
-        let taskCounter = 1;
+        <div id="quotaResult" style="line-height: 1.8; font-size: 15px;">
+            يرجى إدخال عدد الفئات لبدء تفعيل شروط القرار التدقيقي آلياً...
+        </div>
+    </div>
+</div>
 
+<script>
+    // مصفوفة مؤقتة لحفظ الإداريين
+    let administrators = [];
 
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTasksFromServer();
-        });
+    // دالة تسجيل الإداري وتوليد كارت التواصل
+    function registerAdmin() {
+        const nameInput = document.getElementById('adminName');
+        const phoneInput = document.getElementById('adminPhone');
+        const roleSelect = document.getElementById('adminRole');
 
-        // دالة جلب المهام القديمة من السيرفر وعرضها على لوحة كانبان
-        async function loadTasksFromServer() {
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks?select=*`, {
-                    method: 'GET',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    const tasks = await response.json();
-                    
-                    // تنظيف العواميد أولاً قبل وضع البيانات القادمة
-                    document.getElementById('todo').innerHTML = '';
-                    document.getElementById('inprogress').innerHTML = '';
-                    document.getElementById('done').innerHTML = '';
-
-                    // المرور على كل مهمة قادمة من قاعدة البيانات وتوزيعها حسب حالتها (status)
-                    tasks.forEach(task => {
-                        const card = document.createElement('div');
-                        card.className = `task-card priority-${task.priority}`;
-                        
-                        // 🌟 [تعديل هام]: ربط الكارت بالـ ID الحقيقي القادم من قاعدة البيانات لتبسيط عمليات التحديث لاحقاً
-                        card.id = `task-${task.id}`;
-                        card.setAttribute('draggable', 'true');
-                        card.setAttribute('ondragstart', 'drag(event)');
-
-                        let priorityText = "منخفضة";
-                        if(task.priority === "medium") priorityText = "متوسطة";
-                        if(task.priority === "high") priorityText = "عالية";
-
-                        card.innerHTML = `
-                            <div class="task-title">${task.title}</div>
-                            <div class="task-meta">
-                                <span>👤 المسؤول: ${task.assignee}</span>
-                                <span>⚠️ ${priorityText}</span>
-                            </div>
-                        `;
-
-                        // وضع الكارت في العمود الصحيح بناءً على حالة المهمة في السيرفر (todo, inprogress, done)
-                        const targetColumn = document.getElementById(task.status) || document.getElementById('todo');
-                        targetColumn.appendChild(card);
-                    });
-                    console.log("تم جلب وعرض جميع المهام السحابية بنجاح! 📂");
-                }
-            } catch (err) {
-                console.error("خطأ أثناء جلب البيانات:", err.message);
-            }
+        if (!nameInput.value.trim() || !phoneInput.value.trim()) {
+            return alert("يرجى تعبئة اسم الإداري ورقم الهاتف أولاً لجلب بيانات الاتصال!");
         }
 
+        // تنظيف رقم الهاتف من المسافات وعلامة الزائد
+        let cleanPhone = phoneInput.value.replace(/\s+/g, '').replace('+', '');
+        
+        // نص الرسالة التلقائية التوجيهية لرئيس التكتل على الواتساب
+        let messageTemplate = `السلام عليكم ورحمة الله وبركاته.. أخي الإداري المعتمد / ${nameInput.value} بصفتك (${roleSelect.value}) في أعمال الحج، يرجى إفادتنا فوراً بالموقف الميداني لتفويج مجموعتكم الحالية. شاكرين ومقدرين جهودكم.`;
+        let encodedMessage = encodeURIComponent(messageTemplate);
+        
+        // رابط الواتساب المباشر
+        let whatsappURL = `https://wa.me{cleanPhone}?text=${encodedMessage}`;
 
+        const admin = {
+            name: nameInput.value,
+            phone: cleanPhone,
+            role: roleSelect.value,
+            link: whatsappURL
+        };
 
+        administrators.push(admin);
+        renderAdmins();
 
+        // إفراغ الخانات
+        nameInput.value = '';
+        phoneInput.value = '';
+    }
 
+    // عرض كروت الموظفين مع زر الواتساب المباشر
+    function renderAdmins() {
+        const container = document.getElementById('adminsContainer');
+        container.innerHTML = '';
 
-
-
-
-
-
-        function allowDrop(ev) {
-            ev.preventDefault();
-        }
-
-        function drag(ev) {
-            ev.dataTransfer.setData("text", ev.target.id);
-        }
-
-        function drop(ev) {
-            ev.preventDefault();
-            var data = ev.dataTransfer.getData("text");
-            var targetList = ev.target.closest('.task-list');
-            if (targetList) {
-                targetList.appendChild(document.getElementById(data));
-            }
-        }
-
-        // دالة إضافة المهمة وحفظها سحابياً بشكل فوري ومستقر
-        async function addNewTask() {
-            const titleInput = document.getElementById('taskTitle');
-            const assigneeSelect = document.getElementById('taskAssignee');
-            const prioritySelect = document.getElementById('taskPriority');
-
-            if (!titleInput.value.trim()) return alert("رجاءً اكتب تفاصيل المهمة أولاً!");
-
-            const taskContent = titleInput.value;
-            const taskUser = assigneeSelect.value;
-            const taskPriorityVal = prioritySelect.value;
-
-            // أ. بناء الكارت برمجياً داخل الموقع
-            const newId = `task-${taskCounter++}`;
+        administrators.forEach(admin => {
             const card = document.createElement('div');
-            
-            let priorityText = "منخفضة";
-            if(taskPriorityVal === "medium") priorityText = "متوسطة";
-            if(taskPriorityVal === "high") priorityText = "عالية";
-
-            card.className = `task-card priority-${taskPriorityVal}`;
-            card.id = newId;
-            card.setAttribute('draggable', 'true');
-            card.setAttribute('ondragstart', 'drag(event)');
-
+            card.className = 'admin-card';
             card.innerHTML = `
-                <div class="task-title">${taskContent}</div>
-                <div class="task-meta">
-                    <span>👤 المسؤول: ${taskUser}</span>
-                    <span>⚠️ ${priorityText}</span>
+                <div class="admin-details">
+                    <strong>${admin.name}</strong>
+                    <span>${admin.role}</span>
+                </div>
+                <div>
+                    <a href="${admin.link}" target="_blank" class="whatsapp-btn">
+                        💬 واتساب
+                    </a>
                 </div>
             `;
+            container.appendChild(card);
+        });
+    }
 
-            document.getElementById('todo').appendChild(card);
-            titleInput.value = ''; // تفريغ خانة النص
+    // دالة الفحص التلقائي لمطابقة التكتل مع القرار
+    function calculateQuota() {
+        const count = parseInt(document.getElementById('categoriesCount').value) || 0;
+        const resultBox = document.getElementById('quotaResult');
 
-            // ب. الإرسال السحابي المباشر عبر السيرفر بدون مكتبات خارجية
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({
-                        title: taskContent,
-                        assignee: taskUser,
-                        priority: taskPriorityVal,
-                        status: 'todo'
-                    })
-                });
-
-                if (response.ok) {
-                    console.log("تم الحفظ في قاعدة البيانات سحابياً بنجاح! 🎉");
-                } else {
-                    console.error("فشل إرسال البيانات للسيرفر");
-                }
-            } catch (err) {
-                console.error("خطأ في الشبكة:", err.message);
-            }
+        if (count === 0) {
+            resultBox.innerHTML = "يرجى إدخال عدد الفئات لبدء تفعيل شروط القرار التدقيقي آلياً...";
+            return;
         }
-    </script>
+
+        // شروط الحسبة
+        let minCategories = 12;
+        let maxCategories = 21;
+        
+        // حسبة المنسقين والموجهات (عدد الفئات تقسيم 5 وتقريب للأعلى)
+        let requiredCoordinators = Math.ceil(count / 5);
+        let requiredGuides = Math.ceil(count / 5);
+        let requiredAssistant = 1; // ثابت لكل تكتل
+
+        let isSizeValid = (count >= minCategories && count <= maxCategories);
+        let statusClass = isSizeValid ? 'status-valid' : 'status-invalid';
+        let statusText = isSizeValid ? '✅ حالة التكتل: متوافق مع قرار الحج القانوني' : '❌ حالة التكتل: مرفوض (يجب أن يكون حجم التكتل بين 12 و 21 فئة)';
+
+        resultBox.innerHTML = `
+            <div class="status-badge ${statusClass}">${statusText}</div>
+            <ul style="margin-top:15px; padding-right:20px;">
+                <li><b>المعاون الإلزامي للتكتل:</b> ${requiredAssistant} معاون رئيسي.</li>
+                <li><b>عدد المنسقين المطلوبين آلياً للتكتل:</b> يحتاج <span style="color:var(--primary); font-weight:bold;">${requiredCoordinators} منسقين</span> (حسب نسبة 1 لكل 5 فئات).</li>
+                <li><b>عدد الموجهات الدينيات المطلوبة آلياً:</b> يحتاج <span style="color:var(--primary); font-weight:bold;">${requiredGuides} موجهات دينيات</span> (حسب نسبة 1 لكل 5 فئات).</li>
+            </ul>
+        `;
+    }
+</script>
+
 </body>
 </html>

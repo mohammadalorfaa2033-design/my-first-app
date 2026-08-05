@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة متابعة العمل الداخلية</title>
+    
+    <!-- تم تغيير الرابط إلى سيرفر unpkg الأكثر استقراراً لتجنب مشكلة انقطاع الاتصال لديك -->
+	<script src="supabase.js"></script>
+
+
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --column-bg: #ebecf0;
+            --text-color: #172b4d;
+            --primary: #0052cc;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dfe1e6;
+        }
+        .form-container {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        input, select, button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        input { flex: 1; min-width: 200px; }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #0043a4; }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+        @media (max-width: 768px) {
+            .board { grid-template-columns: 1fr; }
+        }
+        .column {
+            background-color: var(--column-bg);
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 400px;
+        }
+        .column h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #5e6c84;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .task-list {
+            min-height: 350px;
+        }
+        .task-card {
+            background: white;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 2px rgba(9,30,66,0.25);
+            cursor: grab;
+        }
+        .task-card:active { cursor: grabbing; }
+        .task-title { font-weight: 600; margin-bottom: 5px; }
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #5e6c84;
+            margin-top: 8px;
+        }
+        .priority-high { border-right: 4px solid #de350b; }
+        .priority-medium { border-right: 4px solid #ffab00; }
+        .priority-low { border-right: 4px solid #00875a; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>💼 لوحة إدارة المهام الداخلية للشركة</h2>
+    </header>
+
+    <div class="form-container">
+        <input type="text" id="taskTitle" placeholder="اكتب تفاصيل المهمة هنا..." required />
+        <select id="taskAssignee">
+            <option value="أحمد">أحمد</option>
+            <option value="سارة">سارة</option>
+            <option value="خالد">خالد</option>
+        </select>
+        <select id="taskPriority">
+            <option value="low">أولوية منخفضة</option>
+            <option value="medium">أولوية متوسطة</option>
+            <option value="high">أولوية عالية</option>
+        </select>
+        <button onclick="addNewTask()">＋ إضافة مهمة</button>
+    </div>
+
+    <div class="board">
+        <div class="column">
+            <h3>📋 مهام جديدة</h3>
+            <div class="task-list" id="todo" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+        <div class="column">
+            <h3>⚡ قيد التنفيذ</h3>
+            <div class="task-list" id="inprogress" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+        <div class="column">
+            <h3>✅ مكتملة</h3>
+            <div class="task-list" id="done" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
+    </div>
+
+    <script>
+        // === [ إعدادات الاتصال المباشر بـ Supabase ] ===
+        const SUPABASE_URL = "https://nkcngzsjevgzurwxkjqn.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rY25nenNqZXZnenVyd3hranFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTQyMTEsImV4cCI6MjEwMTMzMDIxMX0.2UlqfEPT-TCBGnIfHqn1sArX1AOkhRr6zvnQt4evD0U"; 
+
+        let taskCounter = 1;
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTasksFromServer();
+        });
+
+        // دالة جلب المهام القديمة من السيرفر وعرضها على لوحة كانبان
+        async function loadTasksFromServer() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks?select=*`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const tasks = await response.json();
+                    
+                    // تنظيف العواميد أولاً قبل وضع البيانات القادمة
+                    document.getElementById('todo').innerHTML = '';
+                    document.getElementById('inprogress').innerHTML = '';
+                    document.getElementById('done').innerHTML = '';
+
+                    // المرور على كل مهمة قادمة من قاعدة البيانات وتوزيعها حسب حالتها (status)
+                    tasks.forEach(task => {
+                        const card = document.createElement('div');
+                        card.className = `task-card priority-${task.priority}`;
+                        
+                        // 🌟 [تعديل هام]: ربط الكارت بالـ ID الحقيقي القادم من قاعدة البيانات لتبسيط عمليات التحديث لاحقاً
+                        card.id = `task-${task.id}`;
+                        card.setAttribute('draggable', 'true');
+                        card.setAttribute('ondragstart', 'drag(event)');
+
+                        let priorityText = "منخفضة";
+                        if(task.priority === "medium") priorityText = "متوسطة";
+                        if(task.priority === "high") priorityText = "عالية";
+
+                        card.innerHTML = `
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-meta">
+                                <span>👤 المسؤول: ${task.assignee}</span>
+                                <span>⚠️ ${priorityText}</span>
+                            </div>
+                        `;
+
+                        // وضع الكارت في العمود الصحيح بناءً على حالة المهمة في السيرفر (todo, inprogress, done)
+                        const targetColumn = document.getElementById(task.status) || document.getElementById('todo');
+                        targetColumn.appendChild(card);
+                    });
+                    console.log("تم جلب وعرض جميع المهام السحابية بنجاح! 📂");
+                }
+            } catch (err) {
+                console.error("خطأ أثناء جلب البيانات:", err.message);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            var targetList = ev.target.closest('.task-list');
+            if (targetList) {
+                targetList.appendChild(document.getElementById(data));
+            }
+        }
+
+        // دالة إضافة المهمة وحفظها سحابياً بشكل فوري ومستقر
+        async function addNewTask() {
+            const titleInput = document.getElementById('taskTitle');
+            const assigneeSelect = document.getElementById('taskAssignee');
+            const prioritySelect = document.getElementById('taskPriority');
+
+            if (!titleInput.value.trim()) return alert("رجاءً اكتب تفاصيل المهمة أولاً!");
+
+            const taskContent = titleInput.value;
+            const taskUser = assigneeSelect.value;
+            const taskPriorityVal = prioritySelect.value;
+
+            // أ. بناء الكارت برمجياً داخل الموقع
+            const newId = `task-${taskCounter++}`;
+            const card = document.createElement('div');
+            
+            let priorityText = "منخفضة";
+            if(taskPriorityVal === "medium") priorityText = "متوسطة";
+            if(taskPriorityVal === "high") priorityText = "عالية";
+
+            card.className = `task-card priority-${taskPriorityVal}`;
+            card.id = newId;
+            card.setAttribute('draggable', 'true');
+            card.setAttribute('ondragstart', 'drag(event)');
+
+            card.innerHTML = `
+                <div class="task-title">${taskContent}</div>
+                <div class="task-meta">
+                    <span>👤 المسؤول: ${taskUser}</span>
+                    <span>⚠️ ${priorityText}</span>
+                </div>
+            `;
+
+            document.getElementById('todo').appendChild(card);
+            titleInput.value = ''; // تفريغ خانة النص
+
+            // ب. الإرسال السحابي المباشر عبر السيرفر بدون مكتبات خارجية
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        title: taskContent,
+                        assignee: taskUser,
+                        priority: taskPriorityVal,
+                        status: 'todo'
+                    })
+                });
+
+                if (response.ok) {
+                    console.log("تم الحفظ في قاعدة البيانات سحابياً بنجاح! 🎉");
+                } else {
+                    console.error("فشل إرسال البيانات للسيرفر");
+                }
+            } catch (err) {
+                console.error("خطأ في الشبكة:", err.message);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -30,19 +30,8 @@
             border: 1px solid #ccc;
             box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
-        /* بوابه الحماية السرية للمسؤول */
-        .admin-gate {
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            border: 2px solid var(--primary);
-            text-align: center;
-            max-width: 400px;
-            margin: 100px auto;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
+        /* تصميم اللوحة الإدارية */
         .admin-panel {
-            display: none; /* مخفية افتراضياً ولا تظهر إلا لك بكلمة السر */
             background: #eef2f7;
             padding: 20px;
             border: 2px solid var(--primary);
@@ -84,14 +73,14 @@
         .form-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            border-top: 1px dashed var(--border);
-            border-left: 1px dashed var(--border);
+            border-top: 1px solid var(--border);
+            border-left: 1px solid var(--border);
             margin-bottom: 20px;
             background: #fff;
         }
         .form-cell {
-            border-bottom: 1px dashed var(--border);
-            border-right: 1px dashed var(--border);
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
             padding: 10px;
             display: flex;
             flex-direction: column;
@@ -113,20 +102,14 @@
 </head>
 <body>
 
-<!-- 🔐 بوابة الدخول السرية الخاصة بك فقط -->
-<div class="admin-gate" id="authGate">
-    <h3>🌐 نظام إدارة الحج المحمي</h3>
-    <p style="font-size:13px; color:#666;">يرجى إدخال الرمز السري للمسؤول لفتح لوحة التحكم الخاصة والقواعد:</p>
-    <input type="password" id="secretKey" placeholder="أدخل الرمز السري هنا..." style="text-align: center; margin-bottom: 15px;">
-    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="verifyAdminKey()">🔓 فتح لوحة المشرف الخاصة</button>
-</div>
-
-<!-- 🏛️ جسم المنصة الرئيسي (يفتح بعد كتابة كلمة المرور الصحيحة) -->
-<div class="container" id="mainPlatform" style="display:none;">
+<div class="container">
     
-    <!-- ⚙️ لوحة التحكم الخاصة بك فقط (توليد ورفع الملفات والقواعد) -->
+    <!-- ⚙️ لوحة التحكم الخاصة بك (مفتوحة ومتاحة الآن للتجربة السريعة والمباشرة) -->
     <div class="admin-panel" id="adminControlCenter">
-        <h3 style="margin-top:0; color:var(--primary);">🛠️ لوحة التحكم الخاصة بالمشرف العام (مخفية عن العامة)</h3>
+        <h3 style="margin-top:0; color:var(--primary); display: flex; justify-content: space-between; align-items: center;">
+            <span>🛠️ لوحة التحكم الخاصة بالمشرف العام</span>
+            <button class="btn btn-danger" onclick="toggleAdminPanel()" id="hideToggleBtn">إخفاء لوحة التحكم</button>
+        </h3>
         
         <strong style="font-size:13px;">📥 أولاً: توليد وتحميل نماذج الإكسل الفارغة المعتمدة:</strong>
         <div class="toolbar">
@@ -148,6 +131,9 @@
         </div>
         <div id="adminStatusLogs" style="margin-top:10px; font-size:13px; font-weight:bold; color:var(--success);"></div>
     </div>
+
+    <!-- زر لإظهار اللوحة لو قمت بإخفائها -->
+    <button class="btn btn-primary" id="showToggleBtn" style="display:none; margin-bottom: 20px;" onclick="toggleAdminPanel()">⚙️ إظهار لوحة التحكم السرية</button>
 
     <!-- الهيدر الرسمي للمديرية -->
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
@@ -201,3 +187,18 @@
             <tr><th style="width:30%;">الصفة الإلزامية بالمجموعة</th><th style="width:40%;">الاسم والربط بالواتساب</th><th style="width:30%;">الموقف الميداني</th></tr>
         </thead>
         <tbody id="groupTableBody">
+            <tr><td colspan="3" style="color:#666; font-style:italic;">يرجى تحديد "الفئة الممنوحة للمجموعة" لتوليد هيكلها الإداري حسب القاعدة آلياً...</td></tr>
+        </tbody>
+    </table>
+
+    <div class="official-footer">
+        <div>توقيع رئيس المجموعة</div>
+        <div>ختم وتدقيق المديرية</div>
+        <div>التاريخ الحركي: <span id="liveDate"></span></div>
+    </div>
+</div>
+
+<script>
+    // قواعد البيانات المحلية الافتراضية
+    let staffDb = [];
+    let customRules = { "1": ["موجه ديني"], "2": ["موجه ديني", "معاون"], "3": ["موجه ديني", "موجه ديني", "معاون"], "4": ["معاون", "معاون", "معاون", "موجه ديني", "موجه ديني"] };

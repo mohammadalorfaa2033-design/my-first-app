@@ -144,14 +144,9 @@
     </div>
 
     <script>
-
-        // === [ 2. إعدادات الاتصال بـ Supabase ] ===
-
+        // === [ إعدادات الاتصال المباشر بـ Supabase ] ===
         const SUPABASE_URL = "https://nkcngzsjevgzurwxkjqn.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rY25nenNqZXZnenVyd3hranFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTQyMTEsImV4cCI6MjEwMTMzMDIxMX0.2UlqfEPT-TCBGnIfHqn1sArX1AOkhRr6zvnQt4evD0U"; 
-
-        // قمنا بتغيير اسم المتغير هنا إلى db لمنع الخطأ المكتوب في صورتك
-        const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let taskCounter = 1;
 
@@ -172,7 +167,7 @@
             }
         }
 
-        // دالة إضافة المهمة للواجهة وحفظها في جدول tasks السحابي
+        // دالة إضافة المهمة وحفظها سحابياً بشكل فوري ومستقر
         async function addNewTask() {
             const titleInput = document.getElementById('taskTitle');
             const assigneeSelect = document.getElementById('taskAssignee');
@@ -184,7 +179,7 @@
             const taskUser = assigneeSelect.value;
             const taskPriorityVal = prioritySelect.value;
 
-            // أ. إضافتها فوراً بشكل مرئي للمستخدم
+            // أ. بناء الكارت برمجياً داخل الموقع
             const newId = `task-${taskCounter++}`;
             const card = document.createElement('div');
             
@@ -206,33 +201,35 @@
             `;
 
             document.getElementById('todo').appendChild(card);
-            titleInput.value = ''; // تفريغ صندوق النص
+            titleInput.value = ''; // تفريغ خانة النص
 
+            // ب. الإرسال السحابي المباشر عبر السيرفر بدون مكتبات خارجية
             try {
-                // استخدام متغير db الجديد لإرسال البيانات لجدولك
-                const { data, error } = await db
-                    .from('tasks')
-                    .insert([
-                        { 
-                            title: taskContent, 
-                            assignee: taskUser, 
-                            priority: taskPriorityVal, 
-                            status: 'todo' 
-                        }
-                    ]);
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        title: taskContent,
+                        assignee: taskUser,
+                        priority: taskPriorityVal,
+                        status: 'todo'
+                    })
+                });
 
-                if (error) {
-                    console.error("خطأ Supabase:", error.message);
+                if (response.ok) {
+                    console.log("تم الحفظ في قاعدة البيانات سحابياً بنجاح! 🎉");
                 } else {
-                    console.log("تم الحفظ سحابياً بنجاح! 🎉");
-                    alert("تم إرسال المهمة وحفظها سحابياً بنجاح! 🚀");
+                    console.error("فشل إرسال البيانات للسيرفر");
                 }
             } catch (err) {
-                console.error("فشل المزامنة:", err.message);
+                console.error("خطأ في الشبكة:", err.message);
             }
         }
-
-
     </script>
 </body>
 </html>

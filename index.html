@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<script src="https://jsdelivr.net"></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منصة متابعة العمل الداخلية</title>
@@ -101,6 +103,17 @@
         .priority-medium { border-right: 4px solid #ffab00; }
         .priority-low { border-right: 4px solid #00875a; }
     </style>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>💼 لوحة إدارة المهام الذكية</title>
+    <!-- 1. استدعاء مكتبة Supabase الضرورية جداً في الأعلى -->
+    <script src="https://jsdelivr.net"></script>
+    
+    <style>
+        /* ضع هنا تنسيقات الـ CSS الخاصة بلوحة كانبان التي تستخدمها لتظهر الألوان بشكل صحيح */
+    </style>
 </head>
 <body>
 
@@ -108,7 +121,7 @@
         <h2>💼 لوحة إدارة المهام الداخلية للشركة</h2>
     </header>
 
-    <!-- استمارة إضافة مهمة جديدة -->
+    <!-- إستمارة إضافة مهمة جديدة -->
     <div class="form-container">
         <input type="text" id="taskTitle" placeholder="اكتب تفاصيل المهمة هنا..." required />
         <select id="taskAssignee">
@@ -121,6 +134,7 @@
             <option value="medium">أولوية متوسطة</option>
             <option value="high">أولوية عالية</option>
         </select>
+        <!-- قمنا بتعديل الزر ليرسل المهمة للوحة ويحفظها في قاعدة البيانات السحابية بنفس الوقت -->
         <button onclick="addNewTask()">＋ إضافة مهمة</button>
     </div>
 
@@ -156,6 +170,14 @@
     </div>
 
     <script>
+        // === [ قسم إعدادات اتصال قاعدة البيانات SUPABASE ] ===
+        // استبدل الرابط أدناه برابط مشروعك الحقيقي (الذي يبدأ بـ nkcngzsjevgz...) والمفتاح الخاص بك
+        const SUPABASE_URL = "https://nkcngzsjevgzurwxkjqn.supabase.co"; 
+        const SUPABASE_ANON_KEY = "ضع_هنا_مفتاح_anon_الذي_نسخته_من_صفحة_api_keys"; 
+
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // === [ قسم منطق لوحة كانبان والتحكم المحلي ] ===
         let taskCounter = 3;
 
         function allowDrop(ev) {
@@ -168,20 +190,25 @@
 
         function drop(ev) {
             ev.preventDefault();
-            var data = ev.dataTransfer.getSource ? ev.dataTransfer.getSource() : ev.dataTransfer.getData("text");
+            var data = ev.dataTransfer.getData("text");
             var targetList = ev.target.closest('.task-list');
             if (targetList) {
                 targetList.appendChild(document.getElementById(data));
             }
         }
 
-        function addNewTask() {
+        // دالة إضافة المهمة للوحة وللسيرفر معاً
+        async function addNewTask() {
             const titleInput = document.getElementById('taskTitle');
             const assigneeSelect = document.getElementById('taskAssignee');
             const prioritySelect = document.getElementById('taskPriority');
 
             if (!titleInput.value.trim()) return alert("رجاءً اكتب تفاصيل المهمة أولاً!");
 
+            const taskContent = titleInput.value;
+            const taskUser = assigneeSelect.value;
+
+            // 1. إضافة المهمة بشكل مرئي فوري في واجهة الموقع المحلي
             const newId = `task-${taskCounter++}`;
             const card = document.createElement('div');
             
@@ -195,15 +222,26 @@
             card.setAttribute('ondragstart', 'drag(event)');
 
             card.innerHTML = `
-                <div class="task-title">${titleInput.value}</div>
+                <div class="task-title">${taskContent}</div>
                 <div class="task-meta">
-                    <span>👤 المسؤول: ${assigneeSelect.value}</span>
+                    <span>👤 المسؤول: ${taskUser}</span>
                     <span>⚠️ ${priorityText}</span>
                 </div>
             `;
 
             document.getElementById('todo').appendChild(card);
-            titleInput.value = ''; // إعادة تعيين النص
+            titleInput.value = ''; // إعادة تعيين النص بالخانة
+
+            // 2. إرسال وحفظ المهمة تلقائياً في جدول الـ Supabase سحابياً
+            const { data, error } = await supabase
+                .from('messages') // تأكد من إنشاء جدول بهذا الاسم وتغيير صلاحيات الـ RLS فيه بالموقع
+                .insert([{ content: `المهمة: ${taskContent} - المسؤول: ${taskUser}` }]);
+
+            if (error) {
+                console.error("خطأ أثناء الحفظ السحابي:", error.message);
+            } else {
+                console.log("تم المزامنة والحفظ في قاعدة البيانات سحابياً بنجاح! 🎉");
+            }
         }
     </script>
 </body>

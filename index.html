@@ -41,6 +41,26 @@
             margin: 80px auto;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        /* حاوية حقل كلمة المرور مع أيقونة العين */
+        .password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .password-container input {
+            padding: 12px 40px 12px 12px !important; /* مساحة للعين على اليسار */
+            font-size: 16px;
+            text-align: center;
+        }
+        .toggle-password {
+            position: absolute;
+            left: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            user-select: none;
+            color: #555;
+        }
         .admin-panel {
             background: #eef2f7;
             padding: 20px;
@@ -119,18 +139,22 @@
     <h3 style="color: var(--primary); margin-bottom: 5px;">منظومة الحج والعمرة الرقمية</h3>
     <p style="font-size: 13px; color: #666; margin-bottom: 20px;">الجمهورية العربية السورية - وزارة الأوقاف</p>
     
-    <div style="text-align: right; margin-bottom: 15px;">
-        <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px;">أدخل رمز الصلاحية المعتمد:</label>
-        <input type="password" id="accessPasscode" placeholder="••••••••••••" style="text-align: center; padding: 10px; font-size: 16px;">
+    <div style="text-align: right; margin-bottom: 20px;">
+        <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 8px;">أدخل رمز الصلاحية المعتمد:</label>
+        <!-- حاوية كلمة المرور المحدثة بأيقونة العين -->
+        <div class="password-container">
+            <input type="password" id="accessPasscode" placeholder="••••••••••••">
+            <span class="toggle-password" id="eyeIcon" onclick="togglePasswordVisibility()">👁️</span>
+        </div>
     </div>
     
-    <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px;" onclick="authenticateUserGateway()">🔓 التحقق والدخول للمنصة</button>
+    <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 15px;" onclick="authenticateUserGateway()">🔓 التحقق والدخول للمنصة</button>
 </div>
 
-<!-- 🏛️ المنصة الرسمية الرئيسية للمديرية (تفتح بعد إدخال الرموز الصحيحة) -->
+<!-- 🏛️ المنصة الرسمية الرئيسية للمديرية -->
 <div class="container" id="mainHajjPlatform" style="display:none;">
     
-    <!-- ⚙️ لوحة التحكم الإدارية الخاصة (تظهر فقط عند إدخال رمز admn123) -->
+    <!-- ⚙️ لوحة التحكم الإدارية الخاصة (تظهر فقط عند إدخل رمز admn123) -->
     <div class="admin-panel" id="superAdminSection" style="display: none;">
         <h3 style="margin-top:0; color:var(--primary);">🛠️ لوحة التحكم الخاصة بالمشرف العام (إعدادات النظام والقواعد)</h3>
         
@@ -162,7 +186,7 @@
         <div style="font-size:12px; text-align:left;">الجمهورية العربية السورية<br>مديرية الحج والعمرة</div>
     </div>
 
-    <!-- 📋 التحديد الأول: تحديد وتسكين كوادر التكتل الرئيسي العليا (الأسماء) -->
+    <!-- 📋 التحديد الأول: تحديد وتسكين كوادر التكتل الرئيسي العليا -->
     <div class="section-title">🗂️ التحديد الأول: هيكل وتشكيل كادر التكتل الرئيسي (أسماء الكوادر العليا)</div>
     <div class="form-grid">
         <div class="form-cell"><label>رقم/اسم التكتل</label><input type="text" id="c_name" value="التكتل الرئيسي رقم 1"></div>
@@ -179,7 +203,7 @@
         <div class="form-cell" style="background:#fafafa;"></div>
     </div>
 
-    <!-- جدول عرض التحديد الأول للاتصال بأسماء المنسقين والموجهات العليا -->
+    <!-- جدول عرض التحديد الأول -->
     <table id="clusterStaffTable">
         <thead>
             <tr><th style="width:30%;">الصفة بالتكتل الرئيسي</th><th style="width:40%;">الاسم والمراسلة الفورية الفعّالة</th><th style="width:30%;">الحالة الرقمية</th></tr>
@@ -187,16 +211,6 @@
         <tbody id="clusterTableBody"></tbody>
     </table>
 
-    <!-- 📋 التحديد الثاني: تحديد المجموعات وفئاتها ورؤسائها والكوادر التابعة لها داخلياً (الأسماء) -->
+    <!-- 📋 التحديد الثاني: تحديد المجموعات وفئاتها ورؤسائها والكوادر التابعة لها داخلياً -->
     <div class="section-title">📦 التحديد الثاني: هيكلة المجموعات وتسكين أسماء الكادر الداخلي</div>
     <div class="form-grid">
-        <div class="form-cell"><label>اسم المجموعة الداخلية</label><input type="text" id="g_name" placeholder="مثال: مجموعة حلب الأولى"></div>
-        <div class="form-cell">
-            <label>رئيس المجموعة (الاسم)</label>
-            <select id="g_leader_select"><option value="">-- ابحث واختر رئيس المجموعة --</option></select>
-        </div>
-        <div class="form-cell">
-            <label>الفئة الممنوحة للمجموعة</label>
-            <select id="g_category" onchange="renderGroupStaffTable()">
-                <option value="">-- اختر الفئة لتطبيق قاعدة الفئات آلياً --</option>
-                <option value="1">الفئة الأولى (1 موجه ديني)</option>

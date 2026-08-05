@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>النظام المتقدم لإدارة التكتلات | مديرية الحج والعمرة</title>
-    <!-- استدعاء المكتبات البرمجية الأساسية لإدارة ملفات الإكسل محلياً وسريعاً -->
+    <!-- استدعاء مكتبة SheetJS لإدارة وقراءة ملفات الإكسل محلياً -->
     <script src="https://cloudflare.com"></script>
     <style>
         :root {
@@ -30,7 +30,17 @@
             border: 1px solid #ccc;
             box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
-        /* تصميم اللوحة الإدارية */
+        /* تصميم شاشة تسجيل الدخول الأولى الموحدة */
+        .login-screen {
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            text-align: center;
+            max-width: 450px;
+            margin: 80px auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
         .admin-panel {
             background: #eef2f7;
             padding: 20px;
@@ -94,22 +104,35 @@
         
         .whatsapp-link {
             background-color: #25D366; color: white; text-decoration: none;
-            padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;
+            padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;
             display: inline-flex; align-items: center; gap: 4px;
         }
+        .whatsapp-link:hover { background-color: #128C7E; }
         .official-footer { display: flex; justify-content: space-between; margin-top: 40px; font-weight: bold; font-size: 13px; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<!-- 🔐 الصفحة الأولى: بوابات الصلاحية المشفرة بكلمات المرور -->
+<div class="login-screen" id="gatekeeperSystem">
+    <span style="font-size: 45px;">🕋</span>
+    <h3 style="color: var(--primary); margin-bottom: 5px;">منظومة الحج والعمرة الرقمية</h3>
+    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">الجمهورية العربية السورية - وزارة الأوقاف</p>
     
-    <!-- ⚙️ لوحة التحكم الخاصة بك (مفتوحة ومتاحة الآن للتجربة السريعة والمباشرة) -->
-    <div class="admin-panel" id="adminControlCenter">
-        <h3 style="margin-top:0; color:var(--primary); display: flex; justify-content: space-between; align-items: center;">
-            <span>🛠️ لوحة التحكم الخاصة بالمشرف العام</span>
-            <button class="btn btn-danger" onclick="toggleAdminPanel()" id="hideToggleBtn">إخفاء لوحة التحكم</button>
-        </h3>
+    <div style="text-align: right; margin-bottom: 15px;">
+        <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px;">أدخل رمز الصلاحية المعتمد:</label>
+        <input type="password" id="accessPasscode" placeholder="••••••••••••" style="text-align: center; padding: 10px; font-size: 16px;">
+    </div>
+    
+    <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px;" onclick="authenticateUserGateway()">🔓 التحقق والدخول للمنصة</button>
+</div>
+
+<!-- 🏛️ المنصة الرسمية الرئيسية للمديرية (تفتح بعد إدخال الرموز الصحيحة) -->
+<div class="container" id="mainHajjPlatform" style="display:none;">
+    
+    <!-- ⚙️ لوحة التحكم الإدارية الخاصة (تظهر فقط عند إدخال رمز admn123) -->
+    <div class="admin-panel" id="superAdminSection" style="display: none;">
+        <h3 style="margin-top:0; color:var(--primary);">🛠️ لوحة التحكم الخاصة بالمشرف العام (إعدادات النظام والقواعد)</h3>
         
         <strong style="font-size:13px;">📥 أولاً: توليد وتحميل نماذج الإكسل الفارغة المعتمدة:</strong>
         <div class="toolbar">
@@ -132,73 +155,48 @@
         <div id="adminStatusLogs" style="margin-top:10px; font-size:13px; font-weight:bold; color:var(--success);"></div>
     </div>
 
-    <!-- زر لإظهار اللوحة لو قمت بإخفائها -->
-    <button class="btn btn-primary" id="showToggleBtn" style="display:none; margin-bottom: 20px;" onclick="toggleAdminPanel()">⚙️ إظهار لوحة التحكم السرية</button>
-
-    <!-- الهيدر الرسمي للمديرية -->
+    <!-- الهيدر الرسمي لمديرية الحج والعمرة السورية -->
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
         <div style="font-size:12px;">Syrian Arab Republic<br>Directorate of Hajj and Umrah</div>
         <div style="text-align:center;"><strong>الجمهورية العربية السورية</strong><br>وزارة الأوقاف | مديرية الحج والعمرة</div>
         <div style="font-size:12px; text-align:left;">الجمهورية العربية السورية<br>مديرية الحج والعمرة</div>
     </div>
 
-    <!-- 📋 التحديد الأول: تحديد وتسكين كوادر التكتل الرئيسي العليا -->
-    <div class="section-title">🗂️ التحديد الأول: هيكل وتشكيل كادر التكتل الرئيسي</div>
+    <!-- 📋 التحديد الأول: تحديد وتسكين كوادر التكتل الرئيسي العليا (الأسماء) -->
+    <div class="section-title">🗂️ التحديد الأول: هيكل وتشكيل كادر التكتل الرئيسي (أسماء الكوادر العليا)</div>
     <div class="form-grid">
-        <div class="form-cell"><label>رقم/اسم التكتل</label><input type="text" id="c_name" value="التكتل الرئيسي 1"></div>
-        <div class="form-cell"><label>اسم رئيس التكتل</label><input type="text" id="c_leader" placeholder="اكتب اسم رئيس التكتل.."></div>
-        <div class="form-cell"><label>معاون التكتل</label><input type="text" id="c_assistant" placeholder="اكتب اسم المعاون.."></div>
-        <div class="form-cell"><label>عدد المنسقين المطلوبين</label><input type="number" id="c_coord_num" value="2" oninput="renderClusterStaffTable()"></div>
-        <div class="form-cell"><label>عدد الموجهات المطلوبة</label><input type="number" id="c_guides_num" value="2" oninput="renderClusterStaffTable()"></div>
+        <div class="form-cell"><label>رقم/اسم التكتل</label><input type="text" id="c_name" value="التكتل الرئيسي رقم 1"></div>
+        <div class="form-cell">
+            <label>رئيس التكتل</label>
+            <select id="c_leader_select" onchange="syncClusterLeaderName()"><option value="">-- ابحث واختر رئيس التكتل --</option></select>
+        </div>
+        <div class="form-cell">
+            <label>معاون التكتل</label>
+            <select id="c_assistant_select" onchange="syncClusterLeaderName()"><option value="">-- ابحث واختر معاون التكتل --</option></select>
+        </div>
+        <div class="form-cell"><label>عدد المنسقين المطلوبة (أسماء)</label><input type="number" id="c_coord_num" value="2" min="0" oninput="renderClusterStaffTable()"></div>
+        <div class="form-cell"><label>عدد الموجهات المطلوبة (أسماء)</label><input type="number" id="c_guides_num" value="2" min="0" oninput="renderClusterStaffTable()"></div>
         <div class="form-cell" style="background:#fafafa;"></div>
     </div>
 
-    <!-- جدول عرض التحديد الأول للاتصال -->
+    <!-- جدول عرض التحديد الأول للاتصال بأسماء المنسقين والموجهات العليا -->
     <table id="clusterStaffTable">
         <thead>
-            <tr><th style="width:30%;">الصفة بالتكتل</th><th style="width:40%;">الاسم والمراسلة الفورية</th><th style="width:30%;">الحالة الرقمية</th></tr>
+            <tr><th style="width:30%;">الصفة بالتكتل الرئيسي</th><th style="width:40%;">الاسم والمراسلة الفورية الفعّالة</th><th style="width:30%;">الحالة الرقمية</th></tr>
         </thead>
         <tbody id="clusterTableBody"></tbody>
     </table>
 
-    <!-- 📋 التحديد الثاني: تحديد المجموعات وفئاتها ورؤسائها والكوادر التابعة لها داخلياً -->
-    <div class="section-title">📦 التحديد الثاني: هيكلة المجموعات والكادر الإداري الداخلي لها</div>
+    <!-- 📋 التحديد الثاني: تحديد المجموعات وفئاتها ورؤسائها والكوادر التابعة لها داخلياً (الأسماء) -->
+    <div class="section-title">📦 التحديد الثاني: هيكلة المجموعات وتسكين أسماء الكادر الداخلي</div>
     <div class="form-grid">
-        <div class="form-cell"><label>اسم المجموعة الداخلية</label><input type="text" id="g_name" placeholder="مثال: مجموعة دمشق أ"></div>
-        <div class="form-cell"><label>رئيس المجموعة</label><input type="text" id="g_leader" placeholder="اسم رئيس المجموعة.."></div>
+        <div class="form-cell"><label>اسم المجموعة الداخلية</label><input type="text" id="g_name" placeholder="مثال: مجموعة حلب الأولى"></div>
+        <div class="form-cell">
+            <label>رئيس المجموعة (الاسم)</label>
+            <select id="g_leader_select"><option value="">-- ابحث واختر رئيس المجموعة --</option></select>
+        </div>
         <div class="form-cell">
             <label>الفئة الممنوحة للمجموعة</label>
             <select id="g_category" onchange="renderGroupStaffTable()">
-                <option value="">-- اختر الفئة الممنوحة لتطبيق القاعدة --</option>
-                <option value="1">الفئة الأولى</option>
-                <option value="2">الفئة الثانية</option>
-                <option value="3">الفئة الثالثة</option>
-                <option value="4">الفئة الرابعة</option>
-            </select>
-        </div>
-        <div class="form-cell"><label>القطاع الميداني</label><input type="text" id="g_sector" placeholder="تحديد القطاع.."></div>
-        <div class="form-cell"><label>المكتب المشغل</label><input type="text" id="g_office" placeholder="تحديد المكتب.."></div>
-        <div class="form-cell"><label>مستوى المجموعة</label><input type="text" value="اقتصادي" readonly style="background:#eee;"></div>
-    </div>
-
-    <!-- جدول عرض التحديد الثاني للاتصال بالمجموعات -->
-    <table id="groupStaffTable">
-        <thead>
-            <tr><th style="width:30%;">الصفة الإلزامية بالمجموعة</th><th style="width:40%;">الاسم والربط بالواتساب</th><th style="width:30%;">الموقف الميداني</th></tr>
-        </thead>
-        <tbody id="groupTableBody">
-            <tr><td colspan="3" style="color:#666; font-style:italic;">يرجى تحديد "الفئة الممنوحة للمجموعة" لتوليد هيكلها الإداري حسب القاعدة آلياً...</td></tr>
-        </tbody>
-    </table>
-
-    <div class="official-footer">
-        <div>توقيع رئيس المجموعة</div>
-        <div>ختم وتدقيق المديرية</div>
-        <div>التاريخ الحركي: <span id="liveDate"></span></div>
-    </div>
-</div>
-
-<script>
-    // قواعد البيانات المحلية الافتراضية
-    let staffDb = [];
-    let customRules = { "1": ["موجه ديني"], "2": ["موجه ديني", "معاون"], "3": ["موجه ديني", "موجه ديني", "معاون"], "4": ["معاون", "معاون", "معاون", "موجه ديني", "موجه ديني"] };
+                <option value="">-- اختر الفئة لتطبيق قاعدة الفئات آلياً --</option>
+                <option value="1">الفئة الأولى (1 موجه ديني)</option>

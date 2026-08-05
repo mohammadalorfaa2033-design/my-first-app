@@ -150,6 +150,73 @@
 
         let taskCounter = 1;
 
+
+        // 🌟 [خطوة جديدة] تشغيل دالة جلب البيانات تلقائياً فور تحميل الصفحة في المتصفح
+        window.onload = function() {
+            loadTasksFromServer();
+        };
+
+        // 🌟 [دالة جديدة] جلب المهام القديمة من السيرفر وعرضها على لوحة كانبان
+        async function loadTasksFromServer() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks?select=*`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const tasks = await response.json();
+                    
+                    // تنظيف العواميد أولاً قبل وضع البيانات الجلب القادمة
+                    document.getElementById('todo').innerHTML = '';
+                    document.getElementById('inprogress').innerHTML = '';
+                    document.getElementById('done').innerHTML = '';
+
+                    // المرور على كل مهمة قادمة من قاعدة البيانات وتوزيعها حسب حالتها (status)
+                    tasks.forEach(task => {
+                        const card = document.createElement('div');
+                        card.className = `task-card priority-${task.priority}`;
+                        card.id = `task-${task.id || taskCounter++}`;
+                        card.setAttribute('draggable', 'true');
+                        card.setAttribute('ondragstart', 'drag(event)');
+
+                        let priorityText = "منخفضة";
+                        if(task.priority === "medium") priorityText = "متوسطة";
+                        if(task.priority === "high") priorityText = "عالية";
+
+                        card.innerHTML = `
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-meta">
+                                <span>👤 المسؤول: ${task.assignee}</span>
+                                <span>⚠️ ${priorityText}</span>
+                            </div>
+                        `;
+
+                        // وضع الكارت في العمود الصحيح بناءً على حالة المهمة في السيرفر (todo, inprogress, done)
+                        const targetColumn = document.getElementById(task.status) || document.getElementById('todo');
+                        targetColumn.appendChild(card);
+                    });
+                    console.log("تم جلب وعرض جميع المهام السحابية بنجاح! 📂");
+                }
+            } catch (err) {
+                console.error("خطأ أثناء جلب البيانات:", err.message);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
         function allowDrop(ev) {
             ev.preventDefault();
         }

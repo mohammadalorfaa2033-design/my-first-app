@@ -3,288 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نموذج تشكيل التكتل والمجموعة | مديرية الحج والعمرة</title>
-    <!-- استدعاء مكتبة SheetJS لقراءة ملفات الإكسل برمجياً وبشكل محلي تماماً -->
+    <title>النظام المتقدم لإدارة التكتلات | مديرية الحج والعمرة</title>
+    <!-- استدعاء المكتبات البرمجية الأساسية لإدارة ملفات الإكسل محلياً وسريعاً -->
     <script src="https://cloudflare.com"></script>
     <style>
         :root {
-            --primary-color: #172b4d;
-            --border-color: #000000;
-            --bg-table-header: #f4f5f7;
-            --whatsapp-color: #25D366;
+            --primary: #172b4d;
+            --success: #00875a;
+            --danger: #de350b;
+            --warning: #ffab00;
+            --bg: #f4f5f7;
+            --border: #000000;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f9f9f9;
+            background-color: var(--bg);
             margin: 0;
             padding: 20px;
             color: #000;
         }
         .container {
-            max-width: 850px;
+            max-width: 1000px;
             margin: 0 auto;
             background: white;
             padding: 30px;
-            border: 1px solid #ddd;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            position: relative;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
-        
-        /* شريط الأدوات العلوي والأزرار الجديدة */
+        /* بوابه الحماية السرية للمسؤول */
+        .admin-gate {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            text-align: center;
+            max-width: 400px;
+            margin: 100px auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .admin-panel {
+            display: none; /* مخفية افتراضياً ولا تظهر إلا لك بكلمة السر */
+            background: #eef2f7;
+            padding: 20px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
         .toolbar {
             display: flex;
-            gap: 15px;
-            background: #f1f3f5;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 25px;
-            align-items: center;
+            gap: 10px;
             flex-wrap: wrap;
+            margin-top: 15px;
         }
         .btn {
-            padding: 10px 16px;
+            padding: 10px 15px;
             border: none;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-family: inherit;
         }
-        .btn-reset { background-color: #de350b; color: white; }
-        .btn-reset:hover { background-color: #bd2300; }
-        .btn-excel { background-color: #00875a; color: white; position: relative; }
-        .btn-excel:hover { background-color: #006644; }
-        .file-input {
-            position: absolute;
-            left: 0; top: 0; width: 100%; height: 100%;
-            opacity: 0; cursor: pointer;
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; position: relative; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-warning { background: var(--warning); color: #000; }
+        .file-input { position: absolute; left:0; top:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+        
+        .section-title {
+            background: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            font-weight: bold;
+            margin-top: 25px;
+            border-radius: 4px;
         }
-
-        /* تصميم الهيدر الرسمي المماثل للصورة */
-        .official-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-        .official-header .right-side, .official-header .left-side {
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        .official-header .center-logo {
-            text-align: center;
-        }
-        .official-header .center-logo img {
-            width: 80px;
-            height: auto;
-        }
-        .star-divider {
-            text-align: center;
-            color: #ffab00;
-            font-size: 24px;
-            margin: 10px 0;
-        }
-
-        /* شبكة حقول الاستمارة الرسمية */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            border-top: 1px dashed var(--border-color);
-            border-left: 1px dashed var(--border-color);
-            margin-bottom: 25px;
+            border-top: 1px dashed var(--border);
+            border-left: 1px dashed var(--border);
+            margin-bottom: 20px;
+            background: #fff;
         }
         .form-cell {
-            border-bottom: 1px dashed var(--border-color);
-            border-right: 1px dashed var(--border-color);
+            border-bottom: 1px dashed var(--border);
+            border-right: 1px dashed var(--border);
             padding: 10px;
             display: flex;
             flex-direction: column;
-            background: #fff;
         }
-        .form-cell label {
-            font-size: 12px;
-            font-weight: bold;
-            color: #555;
-            margin-bottom: 5px;
-        }
-        .form-cell input, .form-cell select {
-            border: 1px solid #ccc;
-            padding: 6px;
-            font-size: 14px;
-            font-family: inherit;
-            border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .form-cell .static-val {
-            font-weight: bold;
-            font-size: 15px;
-            padding: 6px 0;
-        }
-
-        /* جدول أسماء الكادر الإداري */
-        .table-title {
-            text-align: center;
-            background: var(--bg-table-header);
-            border: 1px dashed var(--border-color);
-            padding: 8px;
-            font-weight: bold;
-            margin-bottom: -1px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 25px;
-        }
-        th, td {
-            border: 1px dashed var(--border-color);
-            padding: 10px;
-            text-align: center;
-            font-size: 14px;
-        }
-        th {
-            background-color: var(--bg-table-header);
-            font-weight: bold;
-        }
+        .form-cell label { font-size: 11px; font-weight: bold; color: #555; margin-bottom: 4px; }
+        input, select { padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 14px; width: 100%; box-sizing: border-box; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
+        th, td { border: 1px dashed var(--border); padding: 8px; text-align: center; font-size: 13px; }
+        th { background: #e6ebf4; font-weight: bold; }
+        
         .whatsapp-link {
-            background-color: var(--whatsapp-color);
-            color: white;
-            text-decoration: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+            background-color: #25D366; color: white; text-decoration: none;
+            padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;
+            display: inline-flex; align-items: center; gap: 4px;
         }
-        .whatsapp-link:hover { background-color: #128C7E; }
-
-        /* تذييل الاستمارة الرسمي */
-        .official-footer {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 40px;
-            font-weight: bold;
-            font-size: 14px;
-            border-top: 1px solid #ccc;
-            padding-top: 15px;
-        }
+        .official-footer { display: flex; justify-content: space-between; margin-top: 40px; font-weight: bold; font-size: 13px; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<!-- 🔐 بوابة الدخول السرية الخاصة بك فقط -->
+<div class="admin-gate" id="authGate">
+    <h3>🌐 نظام إدارة الحج المحمي</h3>
+    <p style="font-size:13px; color:#666;">يرجى إدخال الرمز السري للمسؤول لفتح لوحة التحكم الخاصة والقواعد:</p>
+    <input type="password" id="secretKey" placeholder="أدخل الرمز السري هنا..." style="text-align: center; margin-bottom: 15px;">
+    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="verifyAdminKey()">🔓 فتح لوحة المشرف الخاصة</button>
+</div>
+
+<!-- 🏛️ جسم المنصة الرئيسي (يفتح بعد كتابة كلمة المرور الصحيحة) -->
+<div class="container" id="mainPlatform" style="display:none;">
     
-    <!-- 🛠️ شريط الأدوات العلوي (الطلبات الجديدة لعملك) -->
-    <div class="toolbar">
-        <!-- زر تصفير تفريغ البرنامج -->
-        <button class="btn btn-reset" onclick="resetForm()">🔄 تصفير وإعادة تعيين البرنامج</button>
+    <!-- ⚙️ لوحة التحكم الخاصة بك فقط (توليد ورفع الملفات والقواعد) -->
+    <div class="admin-panel" id="adminControlCenter">
+        <h3 style="margin-top:0; color:var(--primary);">🛠️ لوحة التحكم الخاصة بالمشرف العام (مخفية عن العامة)</h3>
         
-        <!-- زر رفع وتحميل ملف إكسل الكوادر -->
-        <button class="btn btn-excel">
-            📊 تحميل ملف إكسل الكوادر المعتمدين
-            <input type="file" class="file-input" id="excelFile" accept=".xlsx, .xls" onchange="handleExcelUpload(event)">
-        </button>
-        <span id="uploadStatus" style="font-size: 13px; color: #555; font-weight: bold;"></span>
+        <strong style="font-size:13px;">📥 أولاً: توليد وتحميل نماذج الإكسل الفارغة المعتمدة:</strong>
+        <div class="toolbar">
+            <button class="btn btn-warning" onclick="downloadExcelTemplate('staff')">📄 توليد ملف كادر فارغ</button>
+            <button class="btn btn-warning" onclick="downloadExcelTemplate('rules')">📄 توليد ملف قواعد فارغ</button>
+        </div>
+
+        <strong style="font-size:13px; display:block; margin-top:15px;">📤 ثانياً: رفع وتحديث البيانات والقواعد آلياً للبرنامج:</strong>
+        <div class="toolbar">
+            <button class="btn btn-success">
+                📊 رفع ملف الكوادر المعبأ
+                <input type="file" class="file-input" onchange="importExcelData(this, 'staff')">
+            </button>
+            <button class="btn btn-success">
+                ⚖️ رفع ملف القواعد الحاكمة
+                <input type="file" class="file-input" onchange="importExcelData(this, 'rules')">
+            </button>
+            <button class="btn btn-danger" onclick="resetEntireSystem()">🔄 تصفير المنصة بالكامل</button>
+        </div>
+        <div id="adminStatusLogs" style="margin-top:10px; font-size:13px; font-weight:bold; color:var(--success);"></div>
     </div>
 
-    <!-- 🕋 واجهة الاستمارة الرسمية المطابقة للصورة -->
-    <div class="official-header">
-        <div class="right-side">
-            Syrian Arab Republic<br>
-            Ministry of Religious Affairs<br>
-            Directorate of Hajj and Umrah
-        </div>
-        <div class="center-logo">
-            <!-- يمكنك وضع رابط شعار الصقر الرسمي هنا مكان علامة الترس -->
-            <span style="font-size: 40px;">🦅</span><br>
-            <strong>الجمهورية العربية السورية</strong><br>
-            وزارة الأوقــــــــــــــــــــــــــــــــــاف<br>
-            مديرية الحج والعمرة
-        </div>
-        <div class="left-side" style="text-align: left;">
-            الجمهورية العربية السورية<br>
-            وزارة الأوقــــــــــــــــــــــــــــــــــاف<br>
-            مديرية الحج والعمرة
-        </div>
+    <!-- الهيدر الرسمي للمديرية -->
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
+        <div style="font-size:12px;">Syrian Arab Republic<br>Directorate of Hajj and Umrah</div>
+        <div style="text-align:center;"><strong>الجمهورية العربية السورية</strong><br>وزارة الأوقاف | مديرية الحج والعمرة</div>
+        <div style="font-size:12px; text-align:left;">الجمهورية العربية السورية<br>مديرية الحج والعمرة</div>
     </div>
 
-    <div class="star-divider">★</div>
-
-    <!-- شبكة الحقول الأساسية للنموذج العلوى -->
+    <!-- 📋 التحديد الأول: تحديد وتسكين كوادر التكتل الرئيسي العليا -->
+    <div class="section-title">🗂️ التحديد الأول: هيكل وتشكيل كادر التكتل الرئيسي</div>
     <div class="form-grid">
-        <div class="form-cell">
-            <label>تاريخ الطلب</label>
-            <input type="date" id="orderDate">
-        </div>
-        <div class="form-cell">
-            <label>اسم التكتل</label>
-            <input type="number" id="clusterName" value="0">
-        </div>
-        <div class="form-cell" style="background:#fcfcfc;">
-            <!-- مساحة فارغة تحاكي التصميم الأصلي -->
-        </div>
+        <div class="form-cell"><label>رقم/اسم التكتل</label><input type="text" id="c_name" value="التكتل الرئيسي 1"></div>
+        <div class="form-cell"><label>اسم رئيس التكتل</label><input type="text" id="c_leader" placeholder="اكتب اسم رئيس التكتل.."></div>
+        <div class="form-cell"><label>معاون التكتل</label><input type="text" id="c_assistant" placeholder="اكتب اسم المعاون.."></div>
+        <div class="form-cell"><label>عدد المنسقين المطلوبين</label><input type="number" id="c_coord_num" value="2" oninput="renderClusterStaffTable()"></div>
+        <div class="form-cell"><label>عدد الموجهات المطلوبة</label><input type="number" id="c_guides_num" value="2" oninput="renderClusterStaffTable()"></div>
+        <div class="form-cell" style="background:#fafafa;"></div>
+    </div>
 
-        <div class="form-cell">
-            <label>اسم رئيس المجموعة</label>
-            <input type="text" id="groupLeader" placeholder="اكتب اسم رئيس المجموعة...">
-        </div>
-        <div class="form-cell">
-            <label>اسم المجموعة</label>
-            <input type="text" id="groupName" placeholder="اكتب اسم المجموعة...">
-        </div>
-        <div class="form-cell" style="background:#fcfcfc;"></div>
+    <!-- جدول عرض التحديد الأول للاتصال -->
+    <table id="clusterStaffTable">
+        <thead>
+            <tr><th style="width:30%;">الصفة بالتكتل</th><th style="width:40%;">الاسم والمراسلة الفورية</th><th style="width:30%;">الحالة الرقمية</th></tr>
+        </thead>
+        <tbody id="clusterTableBody"></tbody>
+    </table>
 
+    <!-- 📋 التحديد الثاني: تحديد المجموعات وفئاتها ورؤسائها والكوادر التابعة لها داخلياً -->
+    <div class="section-title">📦 التحديد الثاني: هيكلة المجموعات والكادر الإداري الداخلي لها</div>
+    <div class="form-grid">
+        <div class="form-cell"><label>اسم المجموعة الداخلية</label><input type="text" id="g_name" placeholder="مثال: مجموعة دمشق أ"></div>
+        <div class="form-cell"><label>رئيس المجموعة</label><input type="text" id="g_leader" placeholder="اسم رئيس المجموعة.."></div>
         <div class="form-cell">
-            <label>الفئة الممنوحة</label>
-            <select id="grantedCategory" onchange="generateAdministrativeStaff()">
-                <option value="">-- اختر الفئة --</option>
+            <label>الفئة الممنوحة للمجموعة</label>
+            <select id="g_category" onchange="renderGroupStaffTable()">
+                <option value="">-- اختر الفئة الممنوحة لتطبيق القاعدة --</option>
                 <option value="1">الفئة الأولى</option>
                 <option value="2">الفئة الثانية</option>
                 <option value="3">الفئة الثالثة</option>
                 <option value="4">الفئة الرابعة</option>
             </select>
         </div>
-        <div class="form-cell">
-            <label>مستوى المجموعة</label>
-            <div class="static-val">اقتصادي</div>
-        </div>
-        <div class="form-cell" style="background:#fcfcfc;"></div>
-
-        <div class="form-cell">
-            <label>القطاع</label>
-            <input type="text" id="sectorName" placeholder="حدد القطاع الميداني...">
-        </div>
-        <div class="form-cell">
-            <label>المكتب</label>
-            <input type="text" id="officeName" placeholder="حدد اسم المكتب المشغل...">
-        </div>
-        <div class="form-cell" style="background:#fcfcfc;"></div>
-
-        <div class="form-cell" style="grid-column: span 2;">
-            <label>عنوان الايميل</label>
-            <input type="email" id="emailAddress" placeholder="example@domain.com" style="direction: ltr; text-align: right;">
-        </div>
-        <div class="form-cell" style="background:#fcfcfc;"></div>
+        <div class="form-cell"><label>القطاع الميداني</label><input type="text" id="g_sector" placeholder="تحديد القطاع.."></div>
+        <div class="form-cell"><label>المكتب المشغل</label><input type="text" id="g_office" placeholder="تحديد المكتب.."></div>
+        <div class="form-cell"><label>مستوى المجموعة</label><input type="text" value="اقتصادي" readonly style="background:#eee;"></div>
     </div>
 
-    <!-- جدول أسماء الكادر الإداري التلقائي مع روابط الواتساب الميدانية -->
-    <div class="table-title">أسماء الكادر الإداري للمجموعة بالتكتل</div>
-    <table>
+    <!-- جدول عرض التحديد الثاني للاتصال بالمجموعات -->
+    <table id="groupStaffTable">
         <thead>
-            <tr>
-                <th style="width: 25%;">الصفة</th>
-                <th style="width: 45%;">الاسم والمراسلة</th>
-                <th style="width: 30%;">التوقيع / الحالة الرقمية</th>
-            </tr>
+            <tr><th style="width:30%;">الصفة الإلزامية بالمجموعة</th><th style="width:40%;">الاسم والربط بالواتساب</th><th style="width:30%;">الموقف الميداني</th></tr>
         </thead>
-        <tbody id="staffTableBody">
-            <tr>
-                <td colspan="3" style="color: #666; font-style: italic; padding: 20px;">
-
+        <tbody id="groupTableBody">

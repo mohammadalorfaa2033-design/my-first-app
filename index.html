@@ -232,17 +232,27 @@
             document.getElementById('todo').appendChild(card);
             titleInput.value = ''; // إعادة تعيين النص بالخانة
 
-            // 2. إرسال وحفظ المهمة تلقائياً في جدول الـ Supabase سحابياً
-            const { data, error } = await supabase
-                .from('messages') // تأكد من إنشاء جدول بهذا الاسم وتغيير صلاحيات الـ RLS فيه بالموقع
-                .insert([{ content: `المهمة: ${taskContent} - المسؤول: ${taskUser}` }]);
-
-            if (error) {
-                console.error("خطأ أثناء الحفظ السحابي:", error.message);
-            } else {
-                console.log("تم المزامنة والحفظ في قاعدة البيانات سحابياً بنجاح! 🎉");
-            }
+	// 2. إرسال وحفظ المهمة تلقائياً في جدول الـ tasks الجديد سحابياً
+	const { data, error } = await supabase
+   	 .from('tasks') // اسم جدولك الجديد والظاهر بالصورة
+    		.insert([
+        { 
+            title: taskContent,             // يرسل نص المهمة إلى عمود title
+            assignee: taskUser,             // يرسل اسم الشخص إلى عمود assignee
+            priority: prioritySelect.value, // يرسل درجة الأهمية إلى عمود priority
+            status: 'todo'                  // يرسل الحالة الابتدائية إلى عمود status
         }
+    ]);
+
+		if (error) {
+   		 console.error("خطأ أثناء الحفظ السحابي:", error.message);
+    		alert("حدث خطأ أثناء المزامنة: " + error.message);
+		} else {
+   		 console.log("تم المزامنة والحفظ في جدول tasks بنجاح! 🎉");
+    		alert("تم حفظ المهمة في قاعدة البيانات بنجاح! 🚀");
+		}
+
+
     </script>
 </body>
 </html>

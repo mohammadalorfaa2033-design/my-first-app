@@ -191,7 +191,7 @@
             <select id="c_leader_select" onchange="syncClusterLeaderName()"><option value="">-- ابحث واختر رئيس التكتل --</option></select>
         </div>
         <div class="form-grid-cell">
-            <label>معاون التكتل</label>
+            <label>معاون التكتل الرئيسي</label>
             <select id="c_assistant_select" onchange="syncClusterLeaderName()"><option value="">-- ابحث واختر معاون التكتل --</option></select>
         </div>
         <div class="form-grid-cell"><label>عدد المنسقين المطلوبة (أسماء)</label><input type="number" id="c_coord_num" value="2" min="0" oninput="renderClusterStaffTable()"></div>
@@ -221,9 +221,10 @@
             <select id="g_category" onchange="renderGroupStaffTable()">
 
 
+---
 
 ### 💻 الجزء الثاني: كود لغة البرمجة والعمليات (JavaScript)
-انزل لأسفل الملف مباشرة (تحت الجزء الأول تماماً)، وانسخ هذا الجزء الثاني والصقه في النهاية واعمل حفظ:
+انزل لأسفل ملف `index.html` مباشرة (تحت الجزء الأول تماماً)، وانسخ هذا الجزء الثاني المصلح والصقه في النهاية واعمل حفظ [View 1]:
 
 ```html
 <script>
@@ -291,10 +292,11 @@
         groupLeaderSelect.innerHTML = '<option value="">-- ابحث واختر رئيس المجموعة --</option>';
 
         staffDb.forEach(function(person) {
+            // كود الفحص الذكي للصفات المتعددة لتسكينها بدقة بالقوائم
             if(person.الصفة === "رئيس تكتل") {
                 leaderSelect.innerHTML += '<option value="' + person.الاسم + '">' + person.الاسم + '</option>';
             }
-            if(person.الصفة === "معاون" || person.الصفة === "منسق ومعاون") {
+            if(person.الصفة === "معاون" || person.الصفة === "منسق ومعاون" || person.الصفة === "معاون بعدد") {
                 assistantSelect.innerHTML += '<option value="' + person.الاسم + '">' + person.الاسم + '</option>';
             }
             if(person.الصفة === "رئيس مجموعة") {
@@ -332,13 +334,13 @@
     }
 
     function importExcelData(input, type) {
-        var file = input.files;
+        var file = input.files[0];
         if(!file) return;
         var reader = new FileReader();
         reader.onload = function(e) {
             var data = new Uint8Array(e.target.result);
             var workbook = XLSX.read(data, {type: 'array'});
-            var worksheet = workbook.Sheets[workbook.SheetNames];
+            var worksheet = workbook.Sheets[workbook.SheetNames[0]];
             var jsonRows = XLSX.utils.sheet_to_json(worksheet);
 
             if(type === 'staff') {
@@ -398,12 +400,16 @@
         var name = "لم يُعين الاسم (يرجى تحميل الكوادر من الإكسل)";
         var waHTML = '<span style="color:#999; font-size:12px;">🚫 رقم الهاتف غير مدرج</span>';
 
-        var match = staffDb.find(function(s) { return s.الصفة === role && !s.isTaken; });
+        // البحث والتسكين المرن للصفات والصفات المدمجة من ملف إكسل
+        var match = staffDb.find(function(s) { 
+            return (s.الصفة === role || s.الصفة === "منسق ومعاون" || s.الصفة === "معاون بعدد" || s.الصفة === "موجه ديني - مرشد ديني") && !s.isTaken; 
+        });
+
         if(match) {
             name = match.الاسم; 
             match.isTaken = true;
             var phone = String(match.الهاتف).replace(/\s+/g, '').replace('+', '');
-            var encodedMsg = encodeURIComponent("السلام عليكم أخي الإداري / " + name + "، بصفتك (" + role + ") نرجو المتابعة. " + defaultMsg);
+            var encodedMsg = encodeURIComponent("السلام عليكم أخي الإداري المعتمد / " + name + "، بصفتك (" + role + ") نرجو المتابعة الميدانية الفورية. " + defaultMsg);
             waHTML = '<a href="https://wa.me' + phone + '?text=' + encodedMsg + '" target="_blank" class="whatsapp-link">💬 مراسلة واتساب (' + name + ')</a>';
         }
 

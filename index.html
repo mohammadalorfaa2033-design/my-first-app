@@ -151,12 +151,11 @@
         let taskCounter = 1;
 
 
-        // 🌟 [خطوة جديدة] تشغيل دالة جلب البيانات تلقائياً فور تحميل الصفحة في المتصفح
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', function() {
             loadTasksFromServer();
-        };
+        });
 
-        // 🌟 [دالة جديدة] جلب المهام القديمة من السيرفر وعرضها على لوحة كانبان
+        // دالة جلب المهام القديمة من السيرفر وعرضها على لوحة كانبان
         async function loadTasksFromServer() {
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks?select=*`, {
@@ -171,7 +170,7 @@
                 if (response.ok) {
                     const tasks = await response.json();
                     
-                    // تنظيف العواميد أولاً قبل وضع البيانات الجلب القادمة
+                    // تنظيف العواميد أولاً قبل وضع البيانات القادمة
                     document.getElementById('todo').innerHTML = '';
                     document.getElementById('inprogress').innerHTML = '';
                     document.getElementById('done').innerHTML = '';
@@ -180,7 +179,9 @@
                     tasks.forEach(task => {
                         const card = document.createElement('div');
                         card.className = `task-card priority-${task.priority}`;
-                        card.id = `task-${task.id || taskCounter++}`;
+                        
+                        // 🌟 [تعديل هام]: ربط الكارت بالـ ID الحقيقي القادم من قاعدة البيانات لتبسيط عمليات التحديث لاحقاً
+                        card.id = `task-${task.id}`;
                         card.setAttribute('draggable', 'true');
                         card.setAttribute('ondragstart', 'drag(event)');
 

@@ -144,9 +144,13 @@
     </div>
 
     <script>
+
+        // === [ 2. إعدادات الاتصال بـ Supabase ] ===
+
         const SUPABASE_URL = "https://nkcngzsjevgzurwxkjqn.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rY25nenNqZXZnenVyd3hranFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTQyMTEsImV4cCI6MjEwMTMzMDIxMX0.2UlqfEPT-TCBGnIfHqn1sArX1AOkhRr6zvnQt4evD0U"; 
 
+        // قمنا بتغيير اسم المتغير هنا إلى db لمنع الخطأ المكتوب في صورتك
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let taskCounter = 1;
@@ -168,6 +172,7 @@
             }
         }
 
+        // دالة إضافة المهمة للواجهة وحفظها في جدول tasks السحابي
         async function addNewTask() {
             const titleInput = document.getElementById('taskTitle');
             const assigneeSelect = document.getElementById('taskAssignee');
@@ -179,6 +184,7 @@
             const taskUser = assigneeSelect.value;
             const taskPriorityVal = prioritySelect.value;
 
+            // أ. إضافتها فوراً بشكل مرئي للمستخدم
             const newId = `task-${taskCounter++}`;
             const card = document.createElement('div');
             
@@ -200,10 +206,11 @@
             `;
 
             document.getElementById('todo').appendChild(card);
-            titleInput.value = '';
+            titleInput.value = ''; // تفريغ صندوق النص
 
             try {
-                const { data, error } = await db.from('tasks').insert([ ... ]);
+                // استخدام متغير db الجديد لإرسال البيانات لجدولك
+                const { data, error } = await db
                     .from('tasks')
                     .insert([
                         { 
@@ -218,11 +225,14 @@
                     console.error("خطأ Supabase:", error.message);
                 } else {
                     console.log("تم الحفظ سحابياً بنجاح! 🎉");
+                    alert("تم إرسال المهمة وحفظها سحابياً بنجاح! 🚀");
                 }
             } catch (err) {
-                console.error("فشل الاتصال بالسيرفر:", err.message);
+                console.error("فشل المزامنة:", err.message);
             }
         }
+
+
     </script>
 </body>
 </html>

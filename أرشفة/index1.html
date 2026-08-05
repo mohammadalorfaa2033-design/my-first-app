@@ -142,68 +142,13 @@
             <div class="task-list" id="done" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
         </div>
     </div>
+
     <script>
         // === [ إعدادات الاتصال المباشر بـ Supabase ] ===
-        const SUPABASE_URL = "https://supabase.co"; 
-        const SUPABASE_ANON_KEY = "ضع_مفتاح_anon_الخاص_بمشروعك_هنا"; 
+        const SUPABASE_URL = "https://nkcngzsjevgzurwxkjqn.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rY25nenNqZXZnenVyd3hranFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTQyMTEsImV4cCI6MjEwMTMzMDIxMX0.2UlqfEPT-TCBGnIfHqn1sArX1AOkhRr6zvnQt4evD0U"; 
 
         let taskCounter = 1;
-
-        // 🌟 [خطوة جديدة] تشغيل دالة جلب البيانات تلقائياً فور تحميل الصفحة في المتصفح
-        window.onload = function() {
-            loadTasksFromServer();
-        };
-
-        // 🌟 [دالة جديدة] جلب المهام القديمة من السيرفر وعرضها على لوحة كانبان
-        async function loadTasksFromServer() {
-            try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks?select=*`, {
-                    method: 'GET',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    const tasks = await response.json();
-                    
-                    // تنظيف العواميد أولاً قبل وضع البيانات الجلب القادمة
-                    document.getElementById('todo').innerHTML = '';
-                    document.getElementById('inprogress').innerHTML = '';
-                    document.getElementById('done').innerHTML = '';
-
-                    // المرور على كل مهمة قادمة من قاعدة البيانات وتوزيعها حسب حالتها (status)
-                    tasks.forEach(task => {
-                        const card = document.createElement('div');
-                        card.className = `task-card priority-${task.priority}`;
-                        card.id = `task-${task.id || taskCounter++}`;
-                        card.setAttribute('draggable', 'true');
-                        card.setAttribute('ondragstart', 'drag(event)');
-
-                        let priorityText = "منخفضة";
-                        if(task.priority === "medium") priorityText = "متوسطة";
-                        if(task.priority === "high") priorityText = "عالية";
-
-                        card.innerHTML = `
-                            <div class="task-title">${task.title}</div>
-                            <div class="task-meta">
-                                <span>👤 المسؤول: ${task.assignee}</span>
-                                <span>⚠️ ${priorityText}</span>
-                            </div>
-                        `;
-
-                        // وضع الكارت في العمود الصحيح بناءً على حالة المهمة في السيرفر (todo, inprogress, done)
-                        const targetColumn = document.getElementById(task.status) || document.getElementById('todo');
-                        targetColumn.appendChild(card);
-                    });
-                    console.log("تم جلب وعرض جميع المهام السحابية بنجاح! 📂");
-                }
-            } catch (err) {
-                console.error("خطأ أثناء جلب البيانات:", err.message);
-            }
-        }
 
         function allowDrop(ev) {
             ev.preventDefault();
@@ -222,7 +167,7 @@
             }
         }
 
-        // دالة إضافة المهمة وحفظها سحابياً
+        // دالة إضافة المهمة وحفظها سحابياً بشكل فوري ومستقر
         async function addNewTask() {
             const titleInput = document.getElementById('taskTitle');
             const assigneeSelect = document.getElementById('taskAssignee');
@@ -234,6 +179,7 @@
             const taskUser = assigneeSelect.value;
             const taskPriorityVal = prioritySelect.value;
 
+            // أ. بناء الكارت برمجياً داخل الموقع
             const newId = `task-${taskCounter++}`;
             const card = document.createElement('div');
             
@@ -255,8 +201,9 @@
             `;
 
             document.getElementById('todo').appendChild(card);
-            titleInput.value = '';
+            titleInput.value = ''; // تفريغ خانة النص
 
+            // ب. الإرسال السحابي المباشر عبر السيرفر بدون مكتبات خارجية
             try {
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/tasks`, {
                     method: 'POST',
@@ -276,6 +223,8 @@
 
                 if (response.ok) {
                     console.log("تم الحفظ في قاعدة البيانات سحابياً بنجاح! 🎉");
+                } else {
+                    console.error("فشل إرسال البيانات للسيرفر");
                 }
             } catch (err) {
                 console.error("خطأ في الشبكة:", err.message);

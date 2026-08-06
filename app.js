@@ -49,8 +49,12 @@ function authenticateUserGateway() {
 
 // ⚙️ تهيئة الواجهة وعرض تاريخ اليوم الحي عند الدخول السلس
 function initializePlatformUI() {
-    document.getElementById('liveDate').innerText = new Date().toISOString().split('T')[0];
-    fetchStaffFromGoogleSheets();
+    // فحص ذكي: إذا كان عنصر التاريخ موجوداً قم بتحديثه، وإن لم يكن فلا توقف عمل المنصة
+    var dateElement = document.getElementById('liveDate');
+    if (dateElement) {
+        dateElement.innerText = new Date().toISOString().split('T')[0];
+    }
+    fetchStaffFromGoogleSheets(); // الانتقال فوراً للجلب السحابي بدون عوائق
 }
 
 // ⏳ دالة الاتصال بالسحابة المصلحة لتفكيك النص المباشر ومنع التجمد

@@ -1,6 +1,6 @@
 // 🌐 الرابط السحابي المباشر الخاص بملف غوغل شيت لفلترة الأسماء سحابياً حياً
 // (قم باستبدال العبارة والرموز المبهة بالرابط الفعلي المأخوذ من خطوة النشر للويب بصيغة CSV)
-const googleSheetCsvUrl = "⚠️ ضع_هنا_رابط_الـ_CSV_الذي_نسخته_من_خطوة_النشر ⚠️";
+const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrN_bE_7vmgWHq0U2Aw55WcI8TsFgPPTHre3QMexHf2oWaYhZdAaXU2o6c5GXKEtFRKlMVk_dIdvI_/pub?gid=0&single=true&output=csv";
 
 var staffDb = [];
 var groupCounter = 0; // عداد المجموعات المنضوية المضافة ديناميكياً للمنصة

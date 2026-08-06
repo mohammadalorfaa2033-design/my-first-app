@@ -1,26 +1,25 @@
-// [إصلاح حاسم]: حقن واستدعاء مكتبة SheetJS برمجياً لإنهاء خطأ XLSX is not defined نهائياً
+// حقن واستدعاء مكتبة SheetJS برمجياً لضمان استقرار البيئة السحابية والفرز لملفات الإكسل
 if (typeof XLSX === 'undefined') {
     var script = document.createElement('script');
     script.src = "https://cloudflare.com";
     document.head.appendChild(script);
 }
 
-// 🌐 الرابط السحابي المباشر الخاص بملف غوغل شيت لفلترة الأسماء سحابياً حياً
-// (تأكد من لصق رابط غوغل شيت الفعلي المنشور للويب بصيغة CSV هنا)
-const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrN_bE_7vmgWHq0U2Aw55WcI8TsFgPPTHre3QMexHf2oWaYhZdAaXU2o6c5GXKEtFRKlMVk_dIdvI_/pub?gid=0&single=true&output=csv";
+// 🌐 الرابط السحابي المباشر لملف غوغل شيت (تأكد من استخدام خيار النشر للويب بصيغة CSV)
+const googleSheetCsvUrl = "⚠️ ضع_هنا_رابط_الـ_CSV_الذي_نسخته_من_خطوة_النشر ⚠️";
 
 var staffDb = [];
-var groupCounter = 0; // عداد المجموعات المنضوية المضافة ديناميكياً للمنصة
+var groupCounter = 0; 
 
-// ⌨️ رصد ضغط زر Enter على لوحة المفاتيح للدخول الصامت والمباشر عبر مستشعر حقيقي
+// ⌨️ رصد ضغط مفتاح Enter للعبور المباشر والصامت دون أي نوافذ منبثقة أو تأكيدات عائقة
 function handleEnterKey(event) {
     if (event.key === "Enter") {
         event.preventDefault();
-        authenticateUserGateway(); // تشغيل دالة بوابة التحقق فوراً
+        authenticateUserGateway(); 
     }
 }
 
-// 👁️ إظهار وإخفاء رمز الصلاحية (النجوم) داخل واجهة الدخول
+// 👁️ تبديل حالة حقل إدخال الأرقام السرية لبيان الرموز المكتوبة (إظهار/إخفاء)
 function togglePasswordVisibility() {
     var passwordInput = document.getElementById('accessPasscode');
     var eyeIcon = document.getElementById('eyeIcon');
@@ -33,7 +32,7 @@ function togglePasswordVisibility() {
     }
 }
 
-// 🔓 دالة التحقق الرقمي والدخول الفوري الصامت بدون رسائل تأكيد منبثقة
+// 🔓 بوابة فحص رمز الصلاحية والولوج الآلي المباشر للواجهة التشغيلية دون رسائل تأكيد
 function authenticateUserGateway() {
     var inputCode = document.getElementById('accessPasscode').value.trim();
     var authGate = document.getElementById('gatekeeperSystem');
@@ -44,7 +43,6 @@ function authenticateUserGateway() {
         return; 
     }
 
-    // الانتقال مباشر وصامت تماماً وبدون لوحات تحكم فرعية معلقة
     if (inputCode === "main123456" || inputCode === "admn123") {
         authGate.style.display = 'none';
         mainPlatform.style.display = 'block';
@@ -54,12 +52,12 @@ function authenticateUserGateway() {
     }
 }
 
-// ⚙️ تهيئة الواجهة وبدء المزامنة السحابية فور تسجيل الدخول وحذف تعارض التاريخ
 function initializePlatformUI() {
+    // تم إلغاء سطر التاريخ نهائياً لمنع أي تعارض برمي أو توقف في السطر 52
     fetchStaffFromGoogleSheets();
 }
 
-// ⏳ دالة الاتصال المصلحة لتخطي الحظر الأمني والتفريق بين الروابط والتفكيك الذكي
+// ⏳ معالجة روابط غوغل شيت والالتفاف الأوتوماتيكي الذكي على قيود الحظر الأمني للمتصفحات
 function fetchStaffFromGoogleSheets() {
     if(!googleSheetCsvUrl || googleSheetCsvUrl.includes("⚠️")) {
         document.getElementById('adminStatusLogs').innerText = '⚠️ المنصة تعمل محلياً بانتظار ربط السحابة.';
@@ -70,16 +68,14 @@ function fetchStaffFromGoogleSheets() {
     
     document.getElementById('adminStatusLogs').innerText = '⏳ جاري الاتصال بالسحابة ومزامنة الكوادر الحية...';
     
-    // [تطوير حاسم]: تحويل الرابط تلقائياً لنسخة التنزيل المباشر المفتوح لتخطي الحظر الأمني وقواعد حماية البيانات لقوقل
     var directUrl = googleSheetCsvUrl;
     if (googleSheetCsvUrl.includes('/edit')) {
-        var baseUrl = googleSheetCsvUrl.split('/edit')[0];
-        directUrl = baseUrl + '/export?format=csv';
+        directUrl = googleSheetCsvUrl.split('/edit')[0] + '/export?format=csv';
     }
-    
+
     fetch(directUrl)
         .then(response => {
-            if (!response.ok) throw new Error('Network error or sheet is private');
+            if (!response.ok) throw new Error('Network block');
             return response.text();
         })
         .then(csvText => {
@@ -92,17 +88,16 @@ function fetchStaffFromGoogleSheets() {
             
             populateClusterLeaderDropdown();
             renderClusterStaffTable();
-            addNewDynamicGroupSection(); // توليد المجموعة الأولى تلقائياً عند استلام البيانات
+            addNewDynamicGroupSection(); 
         })
         .catch(error => {
-            console.error("Error loading sheet:", error);
-            document.getElementById('adminStatusLogs').innerText = '❌ فشل الاتصال بالسحابة، تحقق من صلاحية المشاركة ونشر الـ CSV.';
+            console.error("Cloud connection failed:", error);
+            document.getElementById('adminStatusLogs').innerText = '❌ فشل الاتصال: تحقق من صلاحيات ومشاركة رابط الغوغل شيت للعامة.';
             renderClusterStaffTable();
             addNewDynamicGroupSection();
         });
 }
 
-// 🗂️ تعبئة قائمة رئيس التكتل تلقائياً من مصفوفة السحابة المجلوبة
 function populateClusterLeaderDropdown() {
     var leaderSelect = document.getElementById('c_leader_select');
     if(!leaderSelect) return;
@@ -114,7 +109,7 @@ function populateClusterLeaderDropdown() {
     });
 }
 
-// 📊 المزامنة الآلية: جلب الهاتف ومكتب التسجيل تلقائياً فور اختيار رئيس التكتل الرئيسي
+// 📊 تفعيل سحب وإدراج هاتف ومكتب تسجيل رئيس التكتل تلقائياً وفورياً بمجرد الاختيار
 function syncClusterLeaderData() {
     var selectedLeader = document.getElementById('c_leader_select').value;
     var phoneInput = document.getElementById('c_leader_phone');
@@ -123,19 +118,19 @@ function syncClusterLeaderData() {
     var match = staffDb.find(s => s.الاسم === selectedLeader && s.الصفة === "رئيس تكتل");
     if(match) {
         phoneInput.value = match.الهاتف || 'غير مدرج';
-        officeInput.value = match.المكتب || 'المكتب الرئيسي للمديرية'; // يبحث عن عمود "المكتب" بملفك
+        officeInput.value = match.المكتب || 'المكتب الرئيسي للمديرية'; 
     } else {
         phoneInput.value = ''; officeInput.value = '';
     }
     renderClusterStaffTable();
 }
 
-// 🔄 تصفير حالة حجز الأسماء لضمان فرز وتوزيع نظيف ومنع تكرار الشخص في أكثر من وظيفة
+// 🔄 تصفير الحجز العيني لضمان الفرز الفريد وتفادي تكرار الاسم في كشوف الجداول
 function resetStaffClaims() {
-    staffDb.forEach(s => s.isTaken = false);
+    staffDb.forEach(function(s) { s.isTaken = false; });
 }
 
-// 📊 توليد وبناء جدول كادر التكتل الرئيسي بناءً على مدخلات الأعداد المطلوبة (معاون، منسق، إلخ)
+// 📊 بناء وتوليد جدول كادر التكتل الرئيسي يدوياً تبعاً لتغيير خانات الأرقام المحددة (إضافة معاون، منسق، إلخ)
 function renderClusterStaffTable() {
     var tbody = document.getElementById('clusterTableBody');
     if(!tbody) return; tbody.innerHTML = '';
@@ -158,7 +153,7 @@ function renderClusterStaffTable() {
     });
 }
 
-// ➕ المحرك الميداني اللانهائي لتوليد المجموعات المنضوية ديناميكياً مع حقول إدخال الكوادر الخاصة بكل مجموعة
+// ➕ محرك التوليد الهيكلي لإضافة مجموعات فرعية لا نهائية باستمارات وجداول داخلية مستقلة تتبع التكتل
 function addNewDynamicGroupSection() {
     groupCounter++;
     var wrapper = document.getElementById('dynamicGroupsWrapper');
@@ -208,23 +203,23 @@ function populateGroupLeaderDropdown(id) {
     selectElement.innerHTML = '<option value="">-- ابحث واختر رئيس المجموعة --</option>';
     staffDb.forEach(function(person) {
         if(person.الصفة === "رئيس مجموعة") {
-            selectElement.innerHTML += `<option value="${person.الاسم}">${person.الاسم}</option>`;
+            selectElement.innerHTML += '<option value="' + person.الاسم + '">' + person.الاسم + '</option>';
         }
     });
 }
 
-// المزامنة والربط الأوتوماتيكي: جلب هاتف ومكتب وفئة رئيس المجموعة تلقائياً فور اختياره من السحابة
+// 📋 السحب الآلي المشترك: جلب هاتف ومكتب وفئة رئيس المجموعة بمجرد اختياره أوتوماتيكياً من السحابة
 function syncDynamicGroupLeaderData(id) {
     var selectedLeader = document.getElementById(`g_leader_select_${id}`).value;
     var phoneInput = document.getElementById(`g_leader_phone_${id}`);
     var officeInput = document.getElementById(`g_office_${id}`);
     var categoryInput = document.getElementById(`g_category_${id}`);
 
-    var match = staffDb.find(s => s.الاسم === selectedLeader && s.الصفة === "رئيس مجموعة");
+    var match = staffDb.find(function(s) { return s.الاسم === selectedLeader && s.الصفة === "رئيس مجموعة"; });
     if(match) {
         phoneInput.value = match.الهاتف || 'غير مدرج';
-        officeInput.value = match.المكتب || 'مكتب المحافظة المعتمد'; // يبحث عن عمود "المكتب" بغوغل شيت
-        categoryInput.value = match.الفئة || 'غير محدد'; // يبحث عن عمود "الفئة" بغوغل شيت
+        officeInput.value = match.المكتب || 'مكتب المحافظة المعتمد';
+        categoryInput.value = match.الفئة || 'غير محدد';
     } else {
         phoneInput.value = ''; officeInput.value = ''; categoryInput.value = '';
     }
@@ -232,7 +227,7 @@ function syncDynamicGroupLeaderData(id) {
     renderDynamicGroupTable(id);
 }
 
-// تحديث الأعداد الإجمالية تلقائياً في حقول التحديد الأول للتكتل الرئيسي
+// ضبط الأعداد الإحصائية في التحديد الأول بشكل ديناميكي تزامناً مع الفئات الحية للمجموعات المنشأة
 function updateTotalGroupsAndCategoriesCount() {
     var groupsCountInput = document.getElementById('c_groups_num');
     if(groupsCountInput) groupsCountInput.value = groupCounter;
@@ -246,7 +241,7 @@ function updateTotalGroupsAndCategoriesCount() {
     if(catCountInput) catCountInput.value = uniqueCategories.size > 0 ? uniqueCategories.size : '1';
 }
 
-// آلية توليد وتسكين كادر المجموعة ديناميكياً وبشكل يدوي مرن مطابق تماماً لآلية التكتل الرئيسي
+// بناء وتوليد كادر المجموعة ديناميكياً وبشكل يدوي مرن مطابق تماماً لآلية التكتل القيادي
 function renderDynamicGroupTable(id) {
     var tbody = document.getElementById(`groupTableBody_${id}`);
     if(!tbody) return; tbody.innerHTML = '';
@@ -294,7 +289,7 @@ function appendRowToTable(tbody, rowIndex, role) {
     tbody.appendChild(tr);
 }
 
-// محرك تصدير كافة بيانات المجموعات الفرعية الحية وكادر التكتل الرئيسي لملف إكسل منظم
+// تصدير كشوف التشكيل الكاملة إلى وثيقة إكسل مبوبة رسمية
 function exportFullClusterReport() {
     var clusterName = document.getElementById('c_name').value || "التكتل الرئيسي";
     var leaderName = document.getElementById('c_leader_select').value || "لم يُعين";
@@ -315,3 +310,4 @@ function exportFullClusterReport() {
     var fileName = "تقرير_اعتماد_" + clusterName.replace(/\s+/g, '_') + ".xlsx";
     XLSX.writeFile(wb, fileName);
 }
+

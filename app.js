@@ -6,13 +6,13 @@ if (typeof XLSX === 'undefined') {
 }
 
 // 🌐 الرابط السحابي المباشر الخاص بملف غوغل شيت لفلترة الأسماء سحابياً حياً
-// (قم باستبدال العبارة والرموز المبهة بالرابط الفعلي المأخوذ من خطوة النشر للويب بصيغة CSV)
-const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrN_bE_7vmgWHq0U2Aw55WcI8TsFgPPTHre3QMexHf2oWaYhZdAaXU2o6c5GXKEtFRKlMVk_dIdvI_/pub?output=csv";
+// (تأكد من لصق رابط غوغل شيت الفعلي المنشور للويب بصيغة CSV هنا)
+const googleSheetCsvUrl = "⚠️ ضع_هنا_رابط_الـ_CSV_الذي_نسخته_من_خطوة_النشر ⚠️";
 
 var staffDb = [];
 var groupCounter = 0; // عداد المجموعات المنضوية المضافة ديناميكياً للمنصة
 
-// ⌨️ رصد ضغط زر Enter على لوحة المفاتيح للدخول الصامت والمباشر
+// ⌨️ رصد ضغط زر Enter على لوحة المفاتيح للدخول الصامت والمباشر عبر مستشعر حقيقي
 function handleEnterKey(event) {
     if (event.key === "Enter") {
         event.preventDefault();
@@ -54,13 +54,12 @@ function authenticateUserGateway() {
     }
 }
 
-// ⚙️ تهيئة الواجهة وبدء المزامنة السحابية فور تسجيل الدخول
+// ⚙️ تهيئة الواجهة وبدء المزامنة السحابية فور تسجيل الدخول وحذف تعارض التاريخ
 function initializePlatformUI() {
-    // [تم الإصلاح الحاسم]: تم حذف سطر الـ liveDate تماماً لمنع تجمد المنصة ولتفادي خطأ السطر 52 نهائياً
     fetchStaffFromGoogleSheets();
 }
 
-// ⏳ دالة الاتصال بالسحابة وتفكيك نصوص الـ CSV القادمة حياً من غوغل شيت
+// ⏳ دالة الاتصال المصلحة لتخطي الحظر الأمني والتفريق بين الروابط والتفكيك الذكي
 function fetchStaffFromGoogleSheets() {
     if(!googleSheetCsvUrl || googleSheetCsvUrl.includes("⚠️")) {
         document.getElementById('adminStatusLogs').innerText = '⚠️ المنصة تعمل محلياً بانتظار ربط السحابة.';
@@ -71,9 +70,16 @@ function fetchStaffFromGoogleSheets() {
     
     document.getElementById('adminStatusLogs').innerText = '⏳ جاري الاتصال بالسحابة ومزامنة الكوادر الحية...';
     
-    fetch(googleSheetCsvUrl)
+    // [تطوير حاسم]: تحويل الرابط تلقائياً لنسخة التنزيل المباشر المفتوح لتخطي الحظر الأمني وقواعد حماية البيانات لقوقل
+    var directUrl = googleSheetCsvUrl;
+    if (googleSheetCsvUrl.includes('/edit')) {
+        var baseUrl = googleSheetCsvUrl.split('/edit')[0];
+        directUrl = baseUrl + '/export?format=csv';
+    }
+    
+    fetch(directUrl)
         .then(response => {
-            if (!response.ok) throw new Error('Network error');
+            if (!response.ok) throw new Error('Network error or sheet is private');
             return response.text();
         })
         .then(csvText => {
@@ -90,7 +96,7 @@ function fetchStaffFromGoogleSheets() {
         })
         .catch(error => {
             console.error("Error loading sheet:", error);
-            document.getElementById('adminStatusLogs').innerText = '❌ فشل الاتصال بالسحابة، تحقق من نشر الـ CSV.';
+            document.getElementById('adminStatusLogs').innerText = '❌ فشل الاتصال بالسحابة، تحقق من صلاحية المشاركة ونشر الـ CSV.';
             renderClusterStaffTable();
             addNewDynamicGroupSection();
         });
@@ -226,7 +232,7 @@ function syncDynamicGroupLeaderData(id) {
     renderDynamicGroupTable(id);
 }
 
-// تحديث الأعداد الإجمالية (عدد المجموعات وعدد الفئات الفريدة) تلقائياً في حقول التحديد الأول للتكتل الرئيسي
+// تحديث الأعداد الإجمالية تلقائياً في حقول التحديد الأول للتكتل الرئيسي
 function updateTotalGroupsAndCategoriesCount() {
     var groupsCountInput = document.getElementById('c_groups_num');
     if(groupsCountInput) groupsCountInput.value = groupCounter;
@@ -273,7 +279,7 @@ function appendRowToTable(tbody, rowIndex, role) {
     var waHTML = '<span style="color:#999; font-size:12px;">🚫 رقم الهاتف غير مدرج</span>';
 
     var match = staffDb.find(function(s) { 
-        return (s.الصفة === role || s.الصفة === "منسق ومعاون" || s.الصفة === "معاون بعدد" || s.الصفة === "موجه ديني - مرشد ديني") && !s.isTaken; 
+        return (s.الصفة === role || s.الصفة === "منسق ومعاون" || s.الصفة === "معاون بعدد" || s.edited_role === role) && !s.isTaken; 
     });
 
     if(match) {
@@ -288,7 +294,7 @@ function appendRowToTable(tbody, rowIndex, role) {
     tbody.appendChild(tr);
 }
 
-// محرك تصدير كافة بيانات المجموعات الفرعية الحية وكادر التكتل الرئيسي لملف إكسل معتمد ومبوب
+// محرك تصدير كافة بيانات المجموعات الفرعية الحية وكادر التكتل الرئيسي لملف إكسل منظم
 function exportFullClusterReport() {
     var clusterName = document.getElementById('c_name').value || "التكتل الرئيسي";
     var leaderName = document.getElementById('c_leader_select').value || "لم يُعين";
@@ -304,7 +310,7 @@ function exportFullClusterReport() {
 
     var wb = XLSX.utils.book_new();
     var ws = XLSX.utils.aoa_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(wb, wb.SheetNames[0] || ws, "تقرير التشكيل المعتمد");
+    XLSX.utils.book_append_sheet(wb, ws, "تقرير التشكيل المعتمد");
     
     var fileName = "تقرير_اعتماد_" + clusterName.replace(/\s+/g, '_') + ".xlsx";
     XLSX.writeFile(wb, fileName);

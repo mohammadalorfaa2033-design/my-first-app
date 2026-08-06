@@ -1,4 +1,3 @@
-
 // [إصلاح حاسم]: حقن برمي ذكي ومبكر لمكتبة SheetJS لضمان استقرار البيئة السحابية والفرز لملفات الإكسل
 if (typeof XLSX === 'undefined') {
     var script = document.createElement('script');
@@ -134,8 +133,6 @@ function syncClusterLeaderData() {
     }
     renderClusterStaffTable();
 }
-
-
 // 🔄 تصفير الحجز العيني لضمان الفرز الفريد وتفادي تكرار الاسم في كشوف الجداول
 function resetStaffClaims() {
     staffDb.forEach(function(s) { s.isTaken = false; });

@@ -58,6 +58,9 @@ function initializePlatformUI() {
 }
 
 // ⏳ معالجة روابط غوغل شيت والالتفاف الأوتوماتيكي الذكي على قيود الحظر الأمني للمتصفحات
+
+
+// دالة الاتصال المحدثة لضمان جلب البيانات وتفكيك الرابط أوتوماتيكياً
 function fetchStaffFromGoogleSheets() {
     if(!googleSheetCsvUrl || googleSheetCsvUrl.includes("⚠️")) {
         document.getElementById('adminStatusLogs').innerText = '⚠️ المنصة تعمل محلياً بانتظار ربط السحابة.';
@@ -68,19 +71,24 @@ function fetchStaffFromGoogleSheets() {
     
     document.getElementById('adminStatusLogs').innerText = '⏳ جاري الاتصال بالسحابة ومزامنة الكوادر الحية...';
     
-    var directUrl = googleSheetCsvUrl;
-    if (googleSheetCsvUrl.includes('/edit')) {
-        directUrl = googleSheetCsvUrl.split('/edit')[0] + '/export?format=csv';
+    // [تعديل حاسم]: تنظيف دقيق وتحويل شامل لروابط جوجل شيت لضمان التنزيل المباشر كـ CSV وتفادي الحظر الأمني
+    var directUrl = googleSheetCsvUrl.trim();
+    if (directUrl.includes('/edit')) {
+        var parts = directUrl.split('/edit');
+        directUrl = parts[0] + '/export?format=csv';
+    } else if (directUrl.includes('/pubhtml')) {
+        var partsHtml = directUrl.split('/pubhtml');
+        directUrl = partsHtml[0] + '/pub?output=csv';
     }
 
     fetch(directUrl)
         .then(response => {
-            if (!response.ok) throw new Error('Network block');
+            if (!response.ok) throw new Error('Network error or sheet is private');
             return response.text();
         })
         .then(csvText => {
             var workbook = XLSX.read(csvText, {type: 'string'});
-            var firstSheetName = workbook.SheetNames[0];
+            var firstSheetName = workbook.SheetNames[0]; // [تعديل لحل قراءة الاسم] جلب الفهرس الأول مباشرة
             var worksheet = workbook.Sheets[firstSheetName];
             staffDb = XLSX.utils.sheet_to_json(worksheet);
             
@@ -92,11 +100,22 @@ function fetchStaffFromGoogleSheets() {
         })
         .catch(error => {
             console.error("Cloud connection failed:", error);
-            document.getElementById('adminStatusLogs').innerText = '❌ فشل الاتصال: تحقق من صلاحيات ومشاركة رابط الغوغل شيت للعامة.';
+            document.getElementById('adminStatusLogs').innerText = '❌ فشل الاتصال بالسحابة، تحقق من صلاحية المشاركة ونشر الـ CSV.';
             renderClusterStaffTable();
             addNewDynamicGroupSection();
         });
 }
+
+
+
+
+
+
+
+
+
+
+
 
 function populateClusterLeaderDropdown() {
     var leaderSelect = document.getElementById('c_leader_select');

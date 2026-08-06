@@ -6,7 +6,7 @@ if (typeof XLSX === 'undefined') {
 }
 
 // 🌐 الرابط السحابي المباشر لملف غوغل شيت (تأكد من استخدام خيار النشر للويب بصيغة CSV)
-const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrN_bE_7vmgWHq0U2Aw55WcI8TsFgPPTHre3QMexHf2oWaYhZdAaXU2o6c5GXKEtFRKlMVk_dIdvI_/pub?gid=0&single=true&output=csv";
+const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrN_bE_7vmgWHq0U2Aw55WcI8TsFgPPTHre3QMexHf2oWaYhZdAaXU2o6c5GXKEtFRKlMVk_dIdvI_/pub?output=csv";
 
 var staffDb = [];
 var groupCounter = 0; 

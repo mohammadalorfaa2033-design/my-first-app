@@ -61,7 +61,6 @@ function initializePlatformUI() {
 }
 
 // ⏳ دالة الاتصال بالسحابة وتفكيك نصوص الـ CSV القادمة حياً من غوغل شيت
-
 function fetchStaffFromGoogleSheets() {
     if(!googleSheetCsvUrl || googleSheetCsvUrl.includes("⚠️")) {
         document.getElementById('adminStatusLogs').innerText = '⚠️ المنصة تعمل محلياً بانتظار ربط السحابة.';
@@ -70,43 +69,6 @@ function fetchStaffFromGoogleSheets() {
         return;
     }
     
-    document.getElementById('adminStatusLogs').innerText = '⏳ جاري الاتصال بالسحابة ومزامنة الكوادر الحية...';
-    
-    // [تطوير حاسم]: تحويل الرابط تلقائياً لنسخة التنزيل المباشر المفتوح لتخطي الحظر الأمني
-    var directUrl = googleSheetCsvUrl;
-    if (googleSheetCsvUrl.includes('/edit')) {
-        directUrl = googleSheetCsvUrl.split('/edit')[0] + '/export?format=csv';
-    }
-
-    fetch(directUrl)
-        .then(response => {
-            if (!response.ok) throw new Error('Network error or sheet is private');
-            return response.text();
-        })
-        .then(csvText => {
-            var workbook = XLSX.read(csvText, {type: 'string'});
-            var firstSheetName = workbook.SheetNames[0];
-            var worksheet = workbook.Sheets[firstSheetName];
-            staffDb = XLSX.utils.sheet_to_json(worksheet);
-            
-            document.getElementById('adminStatusLogs').innerText = '✅ تم التحديث السحابي! جلب عدد (' + staffDb.length + ') اسم كادر معتمد حياً.';
-            
-            populateClusterLeaderDropdown();
-            renderClusterStaffTable();
-            addNewDynamicGroupSection();
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            document.getElementById('adminStatusLogs').innerText = '❌ فشل الاتصال بالسحابة، تحقق من نشر الـ CSV.';
-            renderClusterStaffTable();
-            addNewDynamicGroupSection();
-        });
-}
-
-
-
-
-
     document.getElementById('adminStatusLogs').innerText = '⏳ جاري الاتصال بالسحابة ومزامنة الكوادر الحية...';
     
     fetch(googleSheetCsvUrl)

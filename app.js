@@ -1,5 +1,6 @@
 // 🌐 الرابط السحابي المباشر الخاص بملف غوغل شيت لفلترة الأسماء سحابياً حياً
-const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrN_bE_7vmgWHq0U2Aw55WcI8TsFgPPTHre3QMexHf2oWaYhZdAaXU2o6c5GXKEtFRKlMVk_dIdvI_/pub?output=csv";
+// (تأكد من لصق رابط الـ CSV الفعلي المأخوذ من خطوة "النشر على الويب")
+const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrN_bE_7vmgWHq0U2Aw55WcI8TsFgPPTHre3QMexHf2oWaYhZdAaXU2o6c5GXKEtFRKlMVk_dIdvI_/pub?gid=0&single=true&output=csv";
 
 var staffDb = [];
 var groupCounter = 0; // عداد المجموعات المضافة ديناميكياً لتوليد الواجهات الحية
@@ -52,29 +53,38 @@ function initializePlatformUI() {
     fetchStaffFromGoogleSheets();
 }
 
-// ⏳ دالة الاتصال بالسحابة وتفكيك ملف الغوغل شيت عبر مكتبة SheetJS الفورية
+// ⏳ دالة الاتصال بالسحابة المصلحة لتفكيك النص المباشر ومنع التجمد
 function fetchStaffFromGoogleSheets() {
-    if(googleSheetCsvUrl.includes("⚠️")) {
+    if(!googleSheetCsvUrl || googleSheetCsvUrl.includes("⚠️")) {
+        document.getElementById('adminStatusLogs').innerText = '⚠️ المنصة تعمل محلياً بانتظار ربط السحابة.';
         renderClusterStaffTable();
-        addNewDynamicGroupSection(); // توليد المجموعة الأولى افتراضياً
+        addNewDynamicGroupSection(); 
         return;
     }
     
+    document.getElementById('adminStatusLogs').innerText = '⏳ جاري الاتصال بالسحابة ومزامنة الكوادر الحية...';
+    
     fetch(googleSheetCsvUrl)
-        .then(response => response.text())
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.text();
+        })
         .then(csvText => {
+            // [تم الإصلاح]: تفكيك النص القادم كـ CSV وقراءته بوضوح تام لمنع التجمد
             var workbook = XLSX.read(csvText, {type: 'string'});
-            var worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            var firstSheetName = workbook.SheetNames[0];
+            var worksheet = workbook.Sheets[firstSheetName];
             staffDb = XLSX.utils.sheet_to_json(worksheet);
+            
             document.getElementById('adminStatusLogs').innerText = '✅ تم التحديث السحابي! جلب عدد (' + staffDb.length + ') اسم كادر معتمد حياً.';
             
             populateClusterLeaderDropdown();
             renderClusterStaffTable();
-            addNewDynamicGroupSection(); // توليد المجموعة الأولى افتراضياً بعد نجاح الاتصال
+            addNewDynamicGroupSection(); // توليد المجموعة الأولى افتراضياً بعد نجاح التزامن
         })
         .catch(error => {
-            console.error("Error:", error);
-            document.getElementById('adminStatusLogs').innerText = '❌ فشل الاتصال بالسحابة.';
+            console.error("Error loading scloud sheet:", error);
+            document.getElementById('adminStatusLogs').innerText = '❌ فشل الاتصال: تأكد من تفعيل "النشر للويب بصيغة CSV" والمشاركة للعامة.';
             renderClusterStaffTable();
             addNewDynamicGroupSection();
         });
@@ -83,6 +93,7 @@ function fetchStaffFromGoogleSheets() {
 // 🗂️ تعبئة قائمة رئيس التكتل تلقائياً من السحابة بناءً على الصفة
 function populateClusterLeaderDropdown() {
     var leaderSelect = document.getElementById('c_leader_select');
+    if(!leaderSelect) return;
     leaderSelect.innerHTML = '<option value="">-- ابحث واختر رئيس التكتل --</option>';
     staffDb.forEach(function(person) {
         if(person.الصفة === "رئيس تكتل") {
@@ -100,12 +111,14 @@ function syncClusterLeaderData() {
     var match = staffDb.find(s => s.الاسم === selectedLeader && s.الصفة === "رئيس تكتل");
     if(match) {
         phoneInput.value = match.الهاتف || 'غير مدرج';
-        officeInput.value = match.المكتب || 'المكتب الرئيسي للمديرية'; // يعتمد على عمود المكتب بملفك
+        officeInput.value = match.المكتب || 'المكتب الرئيسي للمديرية'; 
     } else {
         phoneInput.value = ''; officeInput.value = '';
     }
     renderClusterStaffTable();
 }
+
+
 
 // 🔄 تصفير حجز الأسماء للسماح بإعادة فرز الجداول بشكل نظيف ومنع تكرار الاسم الواحد
 function resetStaffClaims() {

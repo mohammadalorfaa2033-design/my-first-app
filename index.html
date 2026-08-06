@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>النظام المتقدم لإدارة التكتلات | مديرية الحج والعمرة</title>
-    <!-- استدعاء مكتبة SheetJS لقراءة وتصدير ملفات الإكسل سحابياً ومحلياً -->
+    <!-- استدعاء مكتبة SheetJS لقراءة وتصدير ملفات الإكسل سحابياً -->
     <script src="https://cloudflare.com"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -16,11 +16,10 @@
     <h3>منظومة الحج والعمرة الرقمية السحابية</h3>
     <p class="subtitle">الجمهورية العربية السورية - وزارة الأوقاف</p>
     
-    <div class="input-group-wrapper">
-        <label>أدخل رمز الصلاحية المعتمد:</label>
+    <div class="input-group-wrapper" style="text-align: right; margin-bottom: 20px;">
+        <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 8px;">أدخل رمز الصلاحية المعتمد:</label>
         <div class="password-container">
-            <!-- تم ربط هذا الحقل بحدث النقر على Enter -->
-            <input type="password" id="accessPasscode" placeholder="••••••••••••" onkeypress="handleEnterKey(event)">
+            <input type="password" id="accessPasscode" placeholder="••••••••••••" onkeydown="handleEnterKey(event)">
             <span class="toggle-password" id="eyeIcon" onclick="togglePasswordVisibility()">👁️</span>
         </div>
     </div>
@@ -30,56 +29,43 @@
 
 <!-- الحاوية الرئيسية للمنصة -->
 <div class="container" id="mainHajjPlatform" style="display:none;">
-    
-    <!-- لوحة المشرف العام -->
-    <div class="admin-panel" id="superAdminSection" style="display: none;">
-        <h3>🛠️ لوحة التحكم الخاصة بالمشرف العام (إعدادات النظام والقواعد)</h3>
-        <strong class="sub-step">📥 أولاً: توليد وتحميل نماذج الإكسل الفارغة المعتمدة:</strong>
-        <div class="toolbar">
-            <button class="btn btn-warning" onclick="downloadExcelTemplate('staff')">📄 توليد ملف كادر فارغ</button>
-            <button class="btn btn-warning" onclick="downloadExcelTemplate('rules')">📄 توليد ملف قواعد فارغ</button>
-        </div>
-        <strong class="sub-step">📤 ثانياً: تحديث سحابي طارئ للبيانات أو تصفير المنصة:</strong>
-        <div class="toolbar">
-            <button class="btn btn-primary" onclick="fetchStaffFromGoogleSheets()">🔄 تحديث حي من غوغل شيت</button>
-            <button class="btn btn-danger" onclick="resetEntireSystem()">🔄 تصفير المنصة بالكامل</button>
-        </div>
-        <div id="adminStatusLogs" class="status-logs"></div>
+
+    <!-- الترويسة الرسمية الأصلية لمديرية الحج والعمرة -->
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
+        <div style="font-size:12px;">Syrian Arab Republic<br>Directorate of Hajj and Umrah</div>
+        <div style="text-align:center;"><strong>الجمهورية العربية السورية</strong><br>وزارة الأوقاف | مديرية الحج والعمرة</div>
+        <div style="font-size:12px; text-align:left;">الجمهورية العربية السورية<br>مديرية الحج والعمرة</div>
     </div>
 
-    <!-- الترويسة الرسمية للمديرية -->
-    <div class="official-header-top">
-        <div class="header-side">Syrian Arab Republic<br>Directorate of Hajj and Umrah</div>
-        <div class="header-center"><strong>الجمهورية العربية السورية</strong><br>وزارة الأوقاف | مديرية الحج والعمرة</div>
-        <div class="header-side text-left">تاريخ التحديث الحي: <span id="liveDate"></span><br>منصة تشكيل التكتلات السحابية</div>
-    </div>
-
-    <!-- شريط الأدوات العلوي الجديد (يحتوي على زر العودة وزر تصدير التقرير المعتمد) -->
+    <!-- شريط الأدوات العلوي الجديد (يحتوي فقط على زر تصدير التقرير المعتمد) -->
     <div class="global-actions-bar">
-        <button class="btn btn-danger" onclick="logoutGateway()">↩️ عودة لقفل الشاشة</button>
+        <div id="adminStatusLogs" style="font-size:13px; font-weight:bold; color:var(--success);">⏳ جاري الاتصال بالسحابة...</div>
         <button class="btn btn-success" onclick="exportFullClusterReport()">📥 تصدير التقرير المعتمد (Excel)</button>
     </div>
 
-    <!-- التحديد الأول -->
-    <div class="section-title">🗂️ التحديد الأول: هيكل وتشكيل كادر التكتل الرئيسي</div>
+    <!-- التحديد الأول: كادر التكتل الرئيسي -->
+    <div class="section-title">🗂️ التحديد الأول: هيكل وتشكيل كادر التكتل الرئيسي (أسماء الكوادر العليا)</div>
     <div class="form-grid">
-        <div class="form-grid-cell"><label>اسم التكتل</label><input type="text" id="c_name" value="التكتل الرئيسي رقم 1"></div>
-        <div class="form-grid-cell"><label>اسم رئيس التكتل</label><select id="c_leader_select" onchange="syncClusterLeaderName()"><option value="">-- اختر الرئيس --</option></select></div>
+        <div class="form-grid-cell"><label>رقم/اسم التكتل</label><input type="text" id="c_name" value="التكتل الرئيسي رقم 1"></div>
+        <div class="form-grid-cell">
+            <label>رئيس التكتل</label>
+            <select id="c_leader_select" onchange="syncClusterLeaderData()"><option value="">-- ابحث واختر رئيس التكتل --</option></select>
+        </div>
         <div class="form-grid-cell"><label>رقم هاتف رئيس التكتل</label><input type="text" id="c_leader_phone" readonly placeholder="يُجلب تلقائياً"></div>
-        <div class="form-grid-cell"><label>مكتب التسجيل</label><input type="text" id="c_registration_office" placeholder="أدخل اسم/رقم المكتب"></div>
+        <div class="form-grid-cell"><label>مكتب التسجيل (رئيس التكتل)</label><input type="text" id="c_registration_office" readonly placeholder="يُجلب تلقائياً من مكتب الرئيس"></div>
         
-        <div class="form-grid-cell"><label>عدد المجموعات</label><input type="number" id="c_groups_num" value="1" min="1"></div>
-        <div class="form-grid-cell"><label>عدد الفئات ضمن التكتل</label><input type="number" id="c_categories_num" value="4" min="1"></div>
-        <div class="form-grid-cell"><label>عدد المنسقين</label><input type="number" id="c_coord_num" value="2" min="0" oninput="renderClusterStaffTable()"></div>
-        <div class="form-grid-cell"><label>عدد الموجهات</label><input type="number" id="c_guides_num" value="2" min="0" oninput="renderClusterStaffTable()"></div>
+        <div class="form-grid-cell"><label>عدد المجموعات المنضوية</label><input type="number" id="c_groups_num" value="1" min="1"></div>
+        <div class="form-grid-cell"><label>عدد الفئات ضمن التكتل</label><input type="text" id="c_categories_num" readonly placeholder="يُجلب تلقائياً من المجموعات"></div>
+        <div class="form-grid-cell"><label>عدد المنسقين المطلوبة (أسماء)</label><input type="number" id="c_coord_num" value="2" min="0" oninput="renderClusterStaffTable()"></div>
+        <div class="form-grid-cell"><label>عدد الموجهات المطلوبة (أسماء)</label><input type="number" id="c_guides_num" value="2" min="0" oninput="renderClusterStaffTable()"></div>
         
-        <div class="form-grid-cell"><label>عدد المعاونين</label><input type="number" id="c_assistants_num" value="1" min="0" oninput="renderClusterStaffTable()"></div>
-        <div class="form-grid-cell"><label>عدد الموجهين</label><input type="number" id="c_clergy_num" value="1" min="0" oninput="renderClusterStaffTable()"></div>
+        <div class="form-grid-cell"><label>عدد المعاونين المطلوبة (أسماء)</label><input type="number" id="c_assistants_num" value="1" min="0" oninput="renderClusterStaffTable()"></div>
+        <div class="form-grid-cell"><label>عدد الموجهين المطلوبة (أسماء)</label><input type="number" id="c_clergy_num" value="1" min="0" oninput="renderClusterStaffTable()"></div>
         <div class="form-grid-cell bg-empty"></div>
         <div class="form-grid-cell bg-empty"></div>
     </div>
 
-    <!-- التحديد الثاني -->
+    <!-- التحديد الثاني: جدول كادر التكتل الرئيسي -->
     <div class="section-title">📊 التحديد الثاني: كادر التكتل الرئيسي</div>
     <table id="clusterStaffTable">
         <thead>
@@ -88,44 +74,15 @@
         <tbody id="clusterTableBody"></tbody>
     </table>
 
-    <!-- زر إضافة مجموعة -->
+    <!-- الحاوية الديناميكية التي تضاف بداخلها المجموعات عند النقر على زر الإضافة -->
+    <div id="dynamicGroupsWrapper">
+        <!-- سيتم توليد المجموعة الأولى هنا تلقائياً عبر الجافاسكريبت -->
+    </div>
+
+    <!-- زر إضافة مجموعة المبتكر والمطابق لرغبتك الميدانية -->
     <div class="add-group-action-container">
-        <button class="btn btn-warning" onclick="alert('جاري إعداد إضافة مجموعة جديدة ديناميكياً...')">➕ إضافة مجموعة</button>
+        <button class="btn btn-warning" style="font-size: 14px; padding: 12px 25px;" onclick="addNewDynamicGroupSection()">➕ إضافة مجموعة جديدة للتكتل</button>
     </div>
-
-    <!-- التحديد الثالث -->
-    <div class="section-title">📦 التحديد الثالث: المجموعات المنضوية تحت التكتلات</div>
-    <div class="form-grid">
-        <div class="form-grid-cell"><label>اسم المجموعة</label><input type="text" id="g_name" placeholder="مثال: مجموعة حلب الأولى"></div>
-        <div class="form-grid-cell"><label>اسم رئيس المجموعة</label><select id="g_leader_select" onchange="syncGroupLeaderPhone()"><option value="">-- اختر رئيس المجموعة --</option></select></div>
-        <div class="form-grid-cell"><label>رقم هاتف رئيس المجموعة</label><input type="text" id="g_leader_phone" readonly placeholder="يُجلب تلقائياً"></div>
-        <div class="form-grid-cell"><label>مكتب التسجيل</label><input type="text" id="g_registration_office" placeholder="أدخل اسم/رقم مكتب المجموعة"></div>
-        
-        <div class="form-grid-cell">
-            <label>الفئة المعتمدة للمجموعة</label>
-            <select id="g_category" onchange="renderGroupStaffTable()">
-                <option value="">-- اختر الفئة الحاكمة --</option>
-                <option value="1">الفئة الأولى (1)</option>
-                <option value="2">الفئة الثانية (2)</option>
-                <option value="3">الفئة الثالثة (3)</option>
-                <option value="4">الفئة الرابعة (4)</option>
-            </select>
-        </div>
-        <div class="form-grid-cell bg-empty"></div>
-        <div class="form-grid-cell bg-empty"></div>
-        <div class="form-grid-cell bg-empty"></div>
-    </div>
-
-    <!-- التحديد الرابع -->
-    <div class="section-title">📋 التحديد الرابع ضمن التحديد الثالث (كادر المجموعة الداخلي)</div>
-    <table>
-        <thead>
-            <tr><th style="width:15%;">الرقم</th><th style="width:35%;">الصفة المعتمدة ضمن المجموعة</th><th style="width:50%;">الاسم والمراسلة الفورية الفعّالة</th></tr>
-        </thead>
-        <tbody id="groupTableBody">
-            <tr><td colspan="3" class="table-placeholder">يرجى تحديد "الفئة المعتمدة للمجموعة" لتوليد كادرها آلياً...</td></tr>
-        </tbody>
-    </table>
 
     <div class="official-footer">
         <div>تصديق رئيس لجنة التشكيل</div>

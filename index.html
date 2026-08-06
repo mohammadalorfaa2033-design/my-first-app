@@ -6,6 +6,7 @@
     <title>النظام المتقدم لإدارة التكتلات | مديرية الحج والعمرة</title>
     <!-- استدعاء مكتبة SheetJS لقراءة وتصدير ملفات الإكسل سحابياً -->
     <script src="https://cloudflare.com"></script>
+    <!-- استدعاء ملف التصميم والمظهر الخارجي -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -37,7 +38,7 @@
         <div style="font-size:12px; text-align:left;">الجمهورية العربية السورية<br>مديرية الحج والعمرة</div>
     </div>
 
-    <!-- شريط الأدوات العلوي الجديد (يحتوي فقط على زر تصدير التقرير المعتمد) -->
+    <!-- شريط الأدوات العلوي (يحتوي فقط على زر تصدير التقرير المعتمد) -->
     <div class="global-actions-bar">
         <div id="adminStatusLogs" style="font-size:13px; font-weight:bold; color:var(--success);">⏳ جاري الاتصال بالسحابة...</div>
         <button class="btn btn-success" onclick="exportFullClusterReport()">📥 تصدير التقرير المعتمد (Excel)</button>
@@ -75,9 +76,7 @@
     </table>
 
     <!-- الحاوية الديناميكية التي تضاف بداخلها المجموعات عند النقر على زر الإضافة -->
-    <div id="dynamicGroupsWrapper">
-        <!-- سيتم توليد المجموعة الأولى هنا تلقائياً عبر الجافاسكريبت -->
-    </div>
+    <div id="dynamicGroupsWrapper"></div>
 
     <!-- زر إضافة مجموعة المبتكر والمطابق لرغبتك الميدانية -->
     <div class="add-group-action-container">
@@ -90,6 +89,7 @@
     </div>
 </div>
 
+<!-- استدعاء ملف التحكم والعمليات الخارجي -->
 <script src="app.js"></script>
 </body>
 </html>

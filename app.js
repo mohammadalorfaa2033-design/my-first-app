@@ -1,19 +1,19 @@
 // 🌐 الرابط السحابي المباشر الخاص بملف غوغل شيت لفلترة الأسماء سحابياً حياً
-// (تأكد من لصق رابط الـ CSV الفعلي المأخوذ من خطوة "النشر على الويب")
-const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrN_bE_7vmgWHq0U2Aw55WcI8TsFgPPTHre3QMexHf2oWaYhZdAaXU2o6c5GXKEtFRKlMVk_dIdvI_/pub?gid=0&single=true&output=csv";
+// (قم باستبدال العبارة والرموز المبهة بالرابط الفعلي المأخوذ من خطوة النشر للويب بصيغة CSV)
+const googleSheetCsvUrl = "⚠️ ضع_هنا_رابط_الـ_CSV_الذي_نسخته_من_خطوة_النشر ⚠️";
 
 var staffDb = [];
-var groupCounter = 0; // عداد المجموعات المضافة ديناميكياً لتوليد الواجهات الحية
+var groupCounter = 0; // عداد المجموعات المنضوية المضافة ديناميكياً للمنصة
 
-// ⌨️ رصد ضغط زر Enter على لوحة المفاتيح للدخول الصامت والفوري
+// ⌨️ رصد ضغط زر Enter على لوحة المفاتيح للدخول الصامت والمباشر
 function handleEnterKey(event) {
     if (event.key === "Enter") {
         event.preventDefault();
-        authenticateUserGateway(); // تشغيل بوابة التحقق فوراً دون أي نوافذ تأكيد
+        authenticateUserGateway(); // تشغيل دالة بوابة التحقق فوراً
     }
 }
 
-// 👁️ إظهار وإخفاء رمز الصلاحية (النجوم) داخل حقل الحماية
+// 👁️ إظهار وإخفاء رمز الصلاحية (النجوم) داخل واجهة الدخول
 function togglePasswordVisibility() {
     var passwordInput = document.getElementById('accessPasscode');
     var eyeIcon = document.getElementById('eyeIcon');
@@ -26,7 +26,7 @@ function togglePasswordVisibility() {
     }
 }
 
-// 🔓 دالة التحقق الرقمي والدخول الصامت بدون رسائل تأكيد منبثقة
+// 🔓 دالة التحقق الرقمي والدخول الفوري الصامت بدون رسائل تأكيد منبثقة
 function authenticateUserGateway() {
     var inputCode = document.getElementById('accessPasscode').value.trim();
     var authGate = document.getElementById('gatekeeperSystem');
@@ -37,7 +37,7 @@ function authenticateUserGateway() {
         return; 
     }
 
-    // الانتقال مباشر وصامت تماماً وبدون لوحة تحكم فرعية
+    // الانتقال مباشر وصامت تماماً وبدون لوحات تحكم فرعية معلقة
     if (inputCode === "main123456" || inputCode === "admn123") {
         authGate.style.display = 'none';
         mainPlatform.style.display = 'block';
@@ -47,18 +47,13 @@ function authenticateUserGateway() {
     }
 }
 
-// ⚙️ تهيئة الواجهة وعرض تاريخ اليوم الحي عند الدخول السلس
-
-
+// ⚙️ تهيئة الواجهة وبدء المزامنة السحابية فور تسجيل الدخول
 function initializePlatformUI() {
-    // تم إلغاء سطر التاريخ نهائياً لمنع أي تعارض برمي
-    fetchStaffFromGoogleSheets(); 
+    // [تم الإصلاح الحاسم]: تم حذف سطر الـ liveDate تماماً لمنع تجمد المنصة ولتفادي خطأ السطر 52 نهائياً
+    fetchStaffFromGoogleSheets();
 }
 
-
-
-
-// ⏳ دالة الاتصال بالسحابة المصلحة لتفكيك النص المباشر ومنع التجمد
+// ⏳ دالة الاتصال بالسحابة وتفكيك نصوص الـ CSV القادمة حياً من غوغل شيت
 function fetchStaffFromGoogleSheets() {
     if(!googleSheetCsvUrl || googleSheetCsvUrl.includes("⚠️")) {
         document.getElementById('adminStatusLogs').innerText = '⚠️ المنصة تعمل محلياً بانتظار ربط السحابة.';
@@ -71,11 +66,10 @@ function fetchStaffFromGoogleSheets() {
     
     fetch(googleSheetCsvUrl)
         .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
+            if (!response.ok) throw new Error('Network error');
             return response.text();
         })
         .then(csvText => {
-            // [تم الإصلاح]: تفكيك النص القادم كـ CSV وقراءته بوضوح تام لمنع التجمد
             var workbook = XLSX.read(csvText, {type: 'string'});
             var firstSheetName = workbook.SheetNames[0];
             var worksheet = workbook.Sheets[firstSheetName];
@@ -85,17 +79,17 @@ function fetchStaffFromGoogleSheets() {
             
             populateClusterLeaderDropdown();
             renderClusterStaffTable();
-            addNewDynamicGroupSection(); // توليد المجموعة الأولى افتراضياً بعد نجاح التزامن
+            addNewDynamicGroupSection(); // توليد المجموعة الأولى تلقائياً عند استلام البيانات
         })
         .catch(error => {
-            console.error("Error loading scloud sheet:", error);
-            document.getElementById('adminStatusLogs').innerText = '❌ فشل الاتصال: تأكد من تفعيل "النشر للويب بصيغة CSV" والمشاركة للعامة.';
+            console.error("Error loading sheet:", error);
+            document.getElementById('adminStatusLogs').innerText = '❌ فشل الاتصال بالسحابة، تحقق من نشر الـ CSV.';
             renderClusterStaffTable();
             addNewDynamicGroupSection();
         });
 }
 
-// 🗂️ تعبئة قائمة رئيس التكتل تلقائياً من السحابة بناءً على الصفة
+// 🗂️ تعبئة قائمة رئيس التكتل تلقائياً من مصفوفة السحابة المجلوبة
 function populateClusterLeaderDropdown() {
     var leaderSelect = document.getElementById('c_leader_select');
     if(!leaderSelect) return;
@@ -107,7 +101,7 @@ function populateClusterLeaderDropdown() {
     });
 }
 
-// 📊 المزامنة والربط التلقائي: جلب الهاتف ومكتب التسجيل تلقائياً فور اختيار رئيس التكتل
+// 📊 المزامنة الآلية: جلب الهاتف ومكتب التسجيل تلقائياً فور اختيار رئيس التكتل الرئيسي
 function syncClusterLeaderData() {
     var selectedLeader = document.getElementById('c_leader_select').value;
     var phoneInput = document.getElementById('c_leader_phone');
@@ -116,21 +110,19 @@ function syncClusterLeaderData() {
     var match = staffDb.find(s => s.الاسم === selectedLeader && s.الصفة === "رئيس تكتل");
     if(match) {
         phoneInput.value = match.الهاتف || 'غير مدرج';
-        officeInput.value = match.المكتب || 'المكتب الرئيسي للمديرية'; 
+        officeInput.value = match.المكتب || 'المكتب الرئيسي للمديرية'; // يبحث عن عمود "المكتب" بملفك
     } else {
         phoneInput.value = ''; officeInput.value = '';
     }
     renderClusterStaffTable();
 }
 
-
-
-// 🔄 تصفير حجز الأسماء للسماح بإعادة فرز الجداول بشكل نظيف ومنع تكرار الاسم الواحد
+// 🔄 تصفير حالة حجز الأسماء لضمان فرز وتوزيع نظيف ومنع تكرار الشخص في أكثر من وظيفة
 function resetStaffClaims() {
     staffDb.forEach(s => s.isTaken = false);
 }
 
-// 📊 توليد وبناء جدول كادر التكتل الرئيسي بناءً على مدخلات الأعداد المطلوبة (إضافة معاون، منسق، إلخ)
+// 📊 توليد وبناء جدول كادر التكتل الرئيسي بناءً على مدخلات الأعداد المطلوبة (معاون، منسق، إلخ)
 function renderClusterStaffTable() {
     var tbody = document.getElementById('clusterTableBody');
     if(!tbody) return; tbody.innerHTML = '';
@@ -153,10 +145,11 @@ function renderClusterStaffTable() {
     });
 }
 
-// ➕ المحرك السحري لتوليد وإضافة الأقسام والمجموعات الميدانية المتعددة ديناميكياً مع حقول إدخال الكوادر
+// ➕ المحرك الميداني اللانهائي لتوليد المجموعات المنضوية ديناميكياً مع حقول إدخال الكوادر الخاصة بكل مجموعة
 function addNewDynamicGroupSection() {
     groupCounter++;
     var wrapper = document.getElementById('dynamicGroupsWrapper');
+    if(!wrapper) return;
     
     var groupHtml = `
         <div class="dynamic-group-box" id="groupWrapper_${groupCounter}" style="margin-top: 30px; border-top: 2px dashed var(--primary); padding-top: 15px;">
@@ -174,7 +167,7 @@ function addNewDynamicGroupSection() {
                 <div class="form-grid-cell"><label>الفئة المعتمدة للمجموعة</label><input type="text" id="g_category_${groupCounter}" readonly placeholder="تُجلب تلقائياً"></div>
                 
                 <div class="form-grid-cell"><label>عدد المعاونين المطلوبين للمجموعة</label><input type="number" id="g_assistants_${groupCounter}" value="1" min="0" oninput="renderDynamicGroupTable(${groupCounter})"></div>
-                <div class="form-grid-cell"><label>عدد المجهين المطلوبين للمجموعة</label><input type="number" id="g_clergy_${groupCounter}" value="1" min="0" oninput="renderDynamicGroupTable(${groupCounter})"></div>
+                <div class="form-grid-cell"><label>عدد الموجهين المطلوبين للمجموعة</label><input type="number" id="g_clergy_${groupCounter}" value="1" min="0" oninput="renderDynamicGroupTable(${groupCounter})"></div>
                 <div class="form-grid-cell bg-empty"></div>
             </div>
 
@@ -195,7 +188,7 @@ function addNewDynamicGroupSection() {
     updateTotalGroupsAndCategoriesCount();
 }
 
-// تعبئة قائمة رؤساء المجموعات ديناميكياً لكل مجموعة جديدة تضاف للمنصة
+// تعبئة قوائم الاختيار لرؤساء المجموعات ديناميكياً لكل قسم جديد يضاف للمنصة
 function populateGroupLeaderDropdown(id) {
     var selectElement = document.getElementById(`g_leader_select_${id}`);
     if(!selectElement) return;
@@ -207,7 +200,7 @@ function populateGroupLeaderDropdown(id) {
     });
 }
 
-// المزامنة والربط الأوتوماتيكي: جلب هاتف ومكتب وفئة رئيس المجموعة تلقائياً فور اختياره
+// المزامنة والربط الأوتوماتيكي: جلب هاتف ومكتب وفئة رئيس المجموعة تلقائياً فور اختياره من السحابة
 function syncDynamicGroupLeaderData(id) {
     var selectedLeader = document.getElementById(`g_leader_select_${id}`).value;
     var phoneInput = document.getElementById(`g_leader_phone_${id}`);
@@ -217,8 +210,8 @@ function syncDynamicGroupLeaderData(id) {
     var match = staffDb.find(s => s.الاسم === selectedLeader && s.الصفة === "رئيس مجموعة");
     if(match) {
         phoneInput.value = match.الهاتف || 'غير مدرج';
-        officeInput.value = match.المكتب || 'مكتب المحافظة المعتمد'; // يعتمد على عمود المكتب في غوغل شيت
-        categoryInput.value = match.الفئة || 'غير محدد'; // جلب وتعبئة الفئة تلقائياً من عمود الفئة في غوغل شيت
+        officeInput.value = match.المكتب || 'مكتب المحافظة المعتمد'; // يبحث عن عمود "المكتب" بغوغل شيت
+        categoryInput.value = match.الفئة || 'غير محدد'; // يبحث عن عمود "الفئة" بغوغل شيت
     } else {
         phoneInput.value = ''; officeInput.value = ''; categoryInput.value = '';
     }
@@ -226,19 +219,21 @@ function syncDynamicGroupLeaderData(id) {
     renderDynamicGroupTable(id);
 }
 
-// تحديث إجمالي الأعداد بشكل حي في التحديد الأول التابع للتكتل
+// تحديث الأعداد الإجمالية (عدد المجموعات وعدد الفئات الفريدة) تلقائياً في حقول التحديد الأول للتكتل الرئيسي
 function updateTotalGroupsAndCategoriesCount() {
-    document.getElementById('c_groups_num').value = groupCounter;
+    var groupsCountInput = document.getElementById('c_groups_num');
+    if(groupsCountInput) groupsCountInput.value = groupCounter;
     
     var uniqueCategories = new Set();
     for(var i = 1; i <= groupCounter; i++) {
         var catVal = document.getElementById(`g_category_${i}`) ? document.getElementById(`g_category_${i}`).value : '';
         if(catVal && catVal !== 'غير محدد') uniqueCategories.add(catVal);
     }
-    document.getElementById('c_categories_num').value = uniqueCategories.size > 0 ? uniqueCategories.size : '1';
+    var catCountInput = document.getElementById('c_categories_num');
+    if(catCountInput) catCountInput.value = uniqueCategories.size > 0 ? uniqueCategories.size : '1';
 }
 
-// آلية توليد كادر المجموعة بشكل ديناميكي ومطابق للتكتل (بناءً على أعداد المعاون والموجه المكتوبة يدوياً)
+// آلية توليد وتسكين كادر المجموعة ديناميكياً وبشكل يدوي مرن مطابق تماماً لآلية التكتل الرئيسي
 function renderDynamicGroupTable(id) {
     var tbody = document.getElementById(`groupTableBody_${id}`);
     if(!tbody) return; tbody.innerHTML = '';
@@ -264,10 +259,10 @@ function renderDynamicGroupTable(id) {
     });
 }
 
-// خوارزمية التسكين الفريد وربط أرقام الجوال بمراسلات الواتساب الدولية الفورية
+// خوارزمية البحث والفرز المرن وحجز الأسماء مع تهيئة وتوليد روابط مراسلات الواتساب الفورية الدولية
 function appendRowToTable(tbody, rowIndex, role) {
     var tr = document.createElement('tr');
-    var assignedName = "لم يُعين الاسم (يرجى مراجعة ترويسات الغوغل شيت)";
+    var assignedName = "لم يُعين الاسم";
     var waHTML = '<span style="color:#999; font-size:12px;">🚫 رقم الهاتف غير مدرج</span>';
 
     var match = staffDb.find(function(s) { 
@@ -277,7 +272,7 @@ function appendRowToTable(tbody, rowIndex, role) {
     if(match) {
         assignedName = match.الاسم; 
         match.isTaken = true;
-        var phone = String(match.Toggle_Phone || match.الهاتف).replace(/\s+/g, '').replace('+', '');
+        var phone = String(match.الهاتف).replace(/\s+/g, '').replace('+', '');
         var encodedMsg = encodeURIComponent("السلام عليكم أخي الإداري المعتمد / " + assignedName + "، بصفتك (" + role + ") نرجو المتابعة الميدانية المعتمدة.");
         waHTML = '<a href="https://wa.me' + phone + '?text=' + encodedMsg + '" target="_blank" class="whatsapp-link">💬 مراسلة واتساب (' + assignedName + ')</a>';
     }
@@ -286,7 +281,7 @@ function appendRowToTable(tbody, rowIndex, role) {
     tbody.appendChild(tr);
 }
 
-// محرك تصدير كافة بيانات المجموعات الحية وكادر التكتل المعتمد لملف إكسل منظم
+// محرك تصدير كافة بيانات المجموعات الفرعية الحية وكادر التكتل الرئيسي لملف إكسل معتمد ومبوب
 function exportFullClusterReport() {
     var clusterName = document.getElementById('c_name').value || "التكتل الرئيسي";
     var leaderName = document.getElementById('c_leader_select').value || "لم يُعين";
@@ -302,12 +297,8 @@ function exportFullClusterReport() {
 
     var wb = XLSX.utils.book_new();
     var ws = XLSX.utils.aoa_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(wb, ws, "تقرير التشكيل المعتمد");
+    XLSX.utils.book_append_sheet(wb, wb.SheetNames[0] || ws, "تقرير التشكيل المعتمد");
     
     var fileName = "تقرير_اعتماد_" + clusterName.replace(/\s+/g, '_') + ".xlsx";
     XLSX.writeFile(wb, fileName);
-}
-
-function resetEntireSystem() {
-    if(confirm("هل أنت متأكد من تصفير المنصة بالكامل؟")) { location.reload(); }
 }

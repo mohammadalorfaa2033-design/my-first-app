@@ -4,140 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>النظام المتقدم لإدارة التكتلات | مديرية الحج والعمرة</title>
-    <!-- استدعاء مكتبة SheetJS لإدارة وقراءة ملفات الإكسل محلياً وفورياً -->
+    
+    <!-- استدعاء مكتبة SheetJS الصحيحة لإدارة وملفات الإكسل والغوغل شيت سحابياً -->
     <script src="https://cloudflare.com"></script>
-    <style>
-        :root {
-            --primary: #172b4d;
-            --success: #00875a;
-            --danger: #de350b;
-            --warning: #ffab00;
-            --bg: #f4f5f7;
-            --border: #000000;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            margin: 0;
-            padding: 20px;
-            color: #000;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border: 1px solid #ccc;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-        .login-screen {
-            background: #fff;
-            padding: 40px 30px;
-            border-radius: 8px;
-            border: 2px solid var(--primary);
-            text-align: center;
-            max-width: 450px;
-            margin: 80px auto;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .password-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
-        .password-container input {
-            padding: 12px 40px 12px 12px !important;
-            font-size: 16px;
-            text-align: center;
-            width: 100%;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .toggle-password {
-            position: absolute;
-            left: 12px;
-            cursor: pointer;
-            font-size: 18px;
-            user-select: none;
-            color: #555;
-        }
-        .admin-panel {
-            background: #eef2f7;
-            padding: 20px;
-            border: 2px solid var(--primary);
-            border-radius: 8px;
-            margin-bottom: 25px;
-        }
-        .toolbar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 13px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-family: inherit;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-success { background: var(--success); color: white; position: relative; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-warning { background: var(--warning); color: #000; }
-        .file-input { position: absolute; left:0; top:0; width:100%; height:100%; opacity:0; cursor:pointer; }
-        
-        .section-title {
-            background: var(--primary);
-            color: white;
-            padding: 8px 15px;
-            font-weight: bold;
-            margin-top: 25px;
-            border-radius: 4px;
-        }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            border-top: 1px solid var(--border);
-            border-left: 1px solid var(--border);
-            margin-bottom: 20px;
-            background: #fff;
-        }
-        .form-grid-cell {
-            border-bottom: 1px solid var(--border);
-            border-right: 1px solid var(--border);
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-        }
-        .form-grid-cell label { font-size: 11px; font-weight: bold; color: #555; margin-bottom: 4px; }
-        input, select { padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 14px; width: 100%; box-sizing: border-box; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; margin-bottom: 20px; }
-        th, td { border: 1px dashed var(--border); padding: 8px; text-align: center; font-size: 13px; }
-        th { background: #e6ebf4; font-weight: bold; }
-        
-        .whatsapp-link {
-            background-color: #25D366; color: white; text-decoration: none;
-            padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;
-            display: inline-flex; align-items: center; gap: 4px;
-        }
-        .whatsapp-link:hover { background-color: #128C7E; }
-        .official-footer { display: flex; justify-content: space-between; margin-top: 40px; font-weight: bold; font-size: 13px; }
-    </style>
+    
+    <!-- 📄 ربط مجموعة التصميم الخارجية (ملف الـ CSS) -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="login-screen" id="gatekeeperSystem">
     <span style="font-size: 45px;">🕋</span>
-    <h3 style="color: var(--primary); margin-bottom: 5px;">منظومة الحج والعمرة الرقمية</h3>
+    <h3 style="color: var(--primary); margin-bottom: 5px;">منظومة الحج والعمرة الرقمية السحابية</h3>
     <p style="font-size: 13px; color: #666; margin-bottom: 20px;">الجمهورية العربية السورية - وزارة الأوقاف</p>
     
     <div style="text-align: right; margin-bottom: 20px;">
@@ -148,7 +26,7 @@
         </div>
     </div>
     
-    <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 15px;" onclick="authenticateUserGateway()">🔓 التحقق والدخول للمنصة</button>
+    <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 15px;" onclick="authenticateUserGateway()">🔓 التحقق ومزامنة الكوادر سحابياً</button>
 </div>
 
 <div class="container" id="mainHajjPlatform" style="display:none;">
@@ -162,16 +40,9 @@
             <button class="btn btn-warning" onclick="downloadExcelTemplate('rules')">📄 توليد ملف قواعد فارغ</button>
         </div>
 
-        <strong style="font-size:13px; display:block; margin-top:15px;">📤 ثانياً: رفع وتحديث البيانات والقواعد آلياً للبرنامج:</strong>
+        <strong style="font-size:13px; display:block; margin-top:15px;">📤 ثانياً: تحديث سحابي طارئ للبيانات أو تصفير المنصة:</strong>
         <div class="toolbar">
-            <button class="btn btn-success">
-                📊 رفع ملف الكوادر المعبأ
-                <input type="file" class="file-input" onchange="importExcelData(this, 'staff')">
-            </button>
-            <button class="btn btn-success">
-                ⚖️ رفع ملف القواعد الحاكمة
-                <input type="file" class="file-input" onchange="importExcelData(this, 'rules')">
-            </button>
+            <button class="btn btn-primary" onclick="fetchStaffFromGoogleSheets()">🔄 تحديث حي من غوغل شيت</button>
             <button class="btn btn-danger" onclick="resetEntireSystem()">🔄 تصفير المنصة بالكامل</button>
         </div>
         <div id="adminStatusLogs" style="margin-top:10px; font-size:13px; font-weight:bold; color:var(--success);"></div>
@@ -180,7 +51,7 @@
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
         <div style="font-size:12px;">Syrian Arab Republic<br>Directorate of Hajj and Umrah</div>
         <div style="text-align:center;"><strong>الجمهورية العربية السورية</strong><br>وزارة الأوقاف | مديرية الحج والعمرة</div>
-        <div style="font-size:12px; text-align:left;">الجمهورية العربية السورية<br>مديرية الحج والعمرة</div>
+        <div style="font-size:12px; text-align:left;">تاريخ التحديث الحي: <span id="liveDate"></span><br>منصة تشكيل التكتلات السحابية</div>
     </div>
 
     <div class="section-title">🗂️ التحديد الأول: هيكل وتشكيل كادر التكتل الرئيسي (أسماء الكوادر العليا)</div>
@@ -219,226 +90,34 @@
         <div class="form-grid-cell">
             <label>الفئة الممنوحة للمجموعة</label>
             <select id="g_category" onchange="renderGroupStaffTable()">
+                <option value="">-- اختر الفئة الحاكمة --</option>
+                <option value="1">الفئة الأولى (1)</option>
+                <option value="2">الفئة الثانية (2)</option>
+                <option value="3">الفئة الثالثة (3)</option>
+                <option value="4">الفئة الرابعة (4)</option>
+            </select>
+        </div>
+        <div class="form-grid-cell"><label>القطاع الميداني</label><input type="text" id="g_sector" placeholder="القطاع الفرعي"></div>
+        <div class="form-grid-cell"><label>المكتب الإداري</label><input type="text" id="g_office" placeholder="رقم المكتب أو الموقع"></div>
+        <div class="form-grid-cell" style="background:#fafafa;"></div>
+    </div>
 
+    <table>
+        <thead>
+            <tr><th style="width:30%;">الصفة بالمجموعة الداخلية</th><th style="width:40%;">الاسم والمراسلة الفورية الفعّالة</th><th style="width:30%;">الحالة الرقمية</th></tr>
+        </thead>
+        <tbody id="groupTableBody">
+            <tr><td colspan="3" style="color:#666; font-style:italic;">يرجى تحديد "الفئة الممنوحة للمجموعة" لتوليد كادرها آلياً...</td></tr>
+        </tbody>
+    </table>
 
----
+    <div class="official-footer">
+        <div>تصديق رئيس لجنة التشكيل</div>
+        <div>اعتماد مديرية الحج والعمرة</div>
+    </div>
+</div>
 
-### 💻 الجزء الثاني: كود لغة البرمجة والعمليات (JavaScript)
-انزل لأسفل ملف `index.html` مباشرة (تحت الجزء الأول تماماً)، وانسخ هذا الجزء الثاني المصلح والصقه في النهاية واعمل حفظ [View 1]:
-
-```html
-<script>
-    var staffDb = [];
-    var customRules = { 
-        "1": ["موجه ديني"], 
-        "2": ["موجه ديني", "معاون"], 
-        "3": ["موجه ديني", "موجه ديني", "معاون"], 
-        "4": ["معاون", "معاون", "معاون", "موجه ديني", "موجه ديني"] 
-    };
-
-    function togglePasswordVisibility() {
-        var passwordInput = document.getElementById('accessPasscode');
-        var eyeIcon = document.getElementById('eyeIcon');
-        if (passwordInput.type === "password") {
-            passwordInput.type = "text";
-            eyeIcon.innerText = "❌";
-        } else {
-            passwordInput.type = "password";
-            eyeIcon.innerText = "👁️";
-        }
-    }
-
-    function authenticateUserGateway() {
-        var inputCode = document.getElementById('accessPasscode').value.trim();
-        var authGate = document.getElementById('gatekeeperSystem');
-        var mainPlatform = document.getElementById('mainHajjPlatform');
-        var superAdminSection = document.getElementById('superAdminSection');
-
-        if (!inputCode) {
-            alert("⚠️ فضلاً، أدخل رمز الصلاحية أولاً!");
-            return;
-        }
-
-        if (inputCode === "main123456") {
-            alert("✅ تم التحقق بنجاح! جاري فتح لوحة التشكيل المخصصة للتكتل.");
-            authGate.style.display = 'none';
-            mainPlatform.style.display = 'block';
-            superAdminSection.style.display = 'none'; 
-            initializePlatformUI();
-        } else if (inputCode === "admn123") {
-            alert("✅ أهلاً بك يا مشرف النظام! جاري فتح لوحة التحكم الكاملة وإعدادات القوائم.");
-            authGate.style.display = 'none';
-            mainPlatform.style.display = 'block';
-            superAdminSection.style.display = 'block'; 
-            initializePlatformUI();
-        } else {
-            alert("❌ رمز الصلاحية المكتوب غير مسجل بنظام المديرية!");
-        }
-    }
-
-    function initializePlatformUI() {
-        document.getElementById('liveDate').innerText = new Date().toISOString().split('T')[0];
-        renderClusterStaffTable();
-        populateDropdownMenus();
-    }
-
-    function populateDropdownMenus() {
-        var leaderSelect = document.getElementById('c_leader_select');
-        var assistantSelect = document.getElementById('c_assistant_select');
-        var groupLeaderSelect = document.getElementById('g_leader_select');
-
-        leaderSelect.innerHTML = '<option value="">-- ابحث واختر رئيس التكتل --</option>';
-        assistantSelect.innerHTML = '<option value="">-- ابحث واختر معاون التكتل --</option>';
-        groupLeaderSelect.innerHTML = '<option value="">-- ابحث واختر رئيس المجموعة --</option>';
-
-        staffDb.forEach(function(person) {
-            // كود الفحص الذكي للصفات المتعددة لتسكينها بدقة بالقوائم
-            if(person.الصفة === "رئيس تكتل") {
-                leaderSelect.innerHTML += '<option value="' + person.الاسم + '">' + person.الاسم + '</option>';
-            }
-            if(person.الصفة === "معاون" || person.الصفة === "منسق ومعاون" || person.الصفة === "معاون بعدد") {
-                assistantSelect.innerHTML += '<option value="' + person.الاسم + '">' + person.الاسم + '</option>';
-            }
-            if(person.الصفة === "رئيس مجموعة") {
-                groupLeaderSelect.innerHTML += '<option value="' + person.الاسم + '">' + person.الاسم + '</option>';
-            }
-        });
-    }
-
-    function downloadExcelTemplate(type) {
-        var headers = [];
-        var filename = "";
-        
-        if(type === 'staff') {
-            headers = [["الاسم", "الصفة", "الهاتف"]];
-            filename = "نموذج_قائمة_الكوادر_المعتمدين_الفارغ.xlsx";
-        } else {
-            headers = [["الفئة", "Kader_Required"]];
-            filename = "نموذج_ملف_القواعد_الافتراضي.xlsx";
-        }
-
-        var wb = XLSX.utils.book_new();
-        var ws = XLSX.utils.aoa_to_sheet(headers);
-        
-        if(type === 'rules') {
-            XLSX.utils.sheet_add_aoa(ws, [
-                ["1", "موجه ديني"],
-                ["2", "موجه ديني,معاون"],
-                ["3", "موجه ديني,موجه ديني,معاون"],
-                ["4", "معاون,معاون,معاون,موجه ديني,موجه ديني"]
-            ], {origin: -1});
-        }
-
-        XLSX.utils.book_append_sheet(wb, ws, "Template");
-        XLSX.writeFile(wb, filename);
-    }
-
-    function importExcelData(input, type) {
-        var file = input.files[0];
-        if(!file) return;
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var data = new Uint8Array(e.target.result);
-            var workbook = XLSX.read(data, {type: 'array'});
-            var worksheet = workbook.Sheets[workbook.SheetNames[0]];
-            var jsonRows = XLSX.utils.sheet_to_json(worksheet);
-
-            if(type === 'staff') {
-                staffDb = jsonRows;
-                document.getElementById('adminStatusLogs').innerText = '✅ نجاح الاستيراد: تم تحميل عدد (' + jsonRows.length + ') اسم وكادر معتمد للبرنامج.';
-                populateDropdownMenus();
-                renderClusterStaffTable();
-                renderGroupStaffTable();
-            } else {
-                jsonRows.forEach(function(row) {
-                    if(row.الفئة && row.Kader_Required) {
-                        customRules[String(row.الفئة)] = row.Kader_Required.split(',');
-                    }
-                });
-                document.getElementById('adminStatusLogs').innerText = '✅ تم تحديث القواعد الحاكمة للفئات بنجاح.';
-                renderGroupStaffTable();
-            }
-            alert("تمت معالجة وحفظ ملف الإكسل في المنصة بنجاح! 🚀");
-        };
-        reader.readAsArrayBuffer(file);
-    }
-
-    function renderClusterStaffTable() {
-        var tbody = document.getElementById('clusterTableBody');
-        tbody.innerHTML = '';
-        
-        var coords = parseInt(document.getElementById('c_coord_num').value) || 0;
-        var guides = parseInt(document.getElementById('c_guides_num').value) || 0;
-
-        var clusterRoles = [];
-        for(var i=1; i<=coords; i++) clusterRoles.push("منسق");
-        for(var j=1; j<=guides; j++) clusterRoles.push("موجهة دينية");
-
-        clusterRoles.forEach(function(role) {
-            appendRowToTable(tbody, role, "تنبيه علوي وتنسيق لكوادر التكتل الرئيسي العام.");
-        });
-    }
-
-    function renderGroupStaffTable() {
-        var category = document.getElementById('g_category').value;
-        var tbody = document.getElementById('groupTableBody');
-        tbody.innerHTML = '';
-
-        if(!category) {
-            tbody.innerHTML = '<tr><td colspan="3" style="color:#666; font-style:italic;">يرجى تحديد "الفئة الممنوحة للمجموعة" لتوليد كادرها آلياً...</td></tr>';
-            return;
-        }
-
-        var roles = customRules[category] || [];
-        roles.forEach(function(role) {
-            appendRowToTable(tbody, role.trim(), "متابعة الموقف الميداني للمجموعة.");
-        });
-    }
-
-    function appendRowToTable(tbody, role, defaultMsg) {
-        var tr = document.createElement('tr');
-        var name = "لم يُعين الاسم (يرجى تحميل الكوادر من الإكسل)";
-        var waHTML = '<span style="color:#999; font-size:12px;">🚫 رقم الهاتف غير مدرج</span>';
-
-        // البحث والتسكين المرن للصفات والصفات المدمجة من ملف إكسل
-        var match = staffDb.find(function(s) { 
-            return (s.الصفة === role || s.الصفة === "منسق ومعاون" || s.الصفة === "معاون بعدد" || s.الصفة === "موجه ديني - مرشد ديني") && !s.isTaken; 
-        });
-
-        if(match) {
-            name = match.الاسم; 
-            match.isTaken = true;
-            var phone = String(match.الهاتف).replace(/\s+/g, '').replace('+', '');
-            var encodedMsg = encodeURIComponent("السلام عليكم أخي الإداري المعتمد / " + name + "، بصفتك (" + role + ") نرجو المتابعة الميدانية الفورية. " + defaultMsg);
-            waHTML = '<a href="https://wa.me' + phone + '?text=' + encodedMsg + '" target="_blank" class="whatsapp-link">💬 مراسلة واتساب (' + name + ')</a>';
-        }
-
-        tr.innerHTML = '<td><b>' + role + '</b></td><td>' + waHTML + '</td><td style="color:#888; font-style:italic;">نشط ومربوط ببيانات الإكسل..</td>';
-        tbody.appendChild(tr);
-        
-        staffDb.forEach(function(s) { s.isTaken = false; });
-    }
-
-    function syncClusterLeaderName() {
-        renderClusterStaffTable();
-    }
-
-    function resetEntireSystem() {
-        if(confirm("هل أنت متأكد من تصفير المنصة ومسح الكوادر والقوائم المسجلة؟")) {
-            staffDb = [];
-            document.getElementById('g_name').value = '';
-            document.getElementById('g_category').value = '';
-            document.getElementById('g_sector').value = '';
-            document.getElementById('g_office').value = '';
-            document.getElementById('c_leader_select').innerHTML = '<option value="">-- ابحث واختر رئيس التكتل --</option>';
-            document.getElementById('c_assistant_select').innerHTML = '<option value="">-- ابحث واختر معاون التكتل --</option>';
-            document.getElementById('g_leader_select').innerHTML = '<option value="">-- ابحث واختر رئيس المجموعة --</option>';
-            document.getElementById('adminStatusLogs').innerText = '';
-            renderClusterStaffTable();
-            renderGroupStaffTable();
-            alert("تم تصفير النظام بنجاح! 🔄");
-        }
-    }
-</script>
+<!-- 💻 ربط مجموعة التحكم والذكاء التشغيلي (ملف الـ JavaScript) -->
+<script src="app.js"></script>
 </body>
 </html>

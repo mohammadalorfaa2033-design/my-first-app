@@ -1,17 +1,12 @@
-// [إصلاح حاسم]: حقن برمي ذكي ومبكر لمكتبة SheetJS لضمان استقرار البيئة السحابية والفرز لملفات الإكسل
-if (typeof XLSX === 'undefined') {
-    var script = document.createElement('script');
-    script.src = "https://cloudflare.com";
-    document.head.appendChild(script);
-}
-
-// 🌐 الرابط السحابي المباشر لملف غوغل شيت (تأكد من استخدام خيار النشر للويب بصيغة CSV)
-const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTrN_bE_7vmgWHq0U2Aw55WcI8TsFgPPTHre3QMexHf2oWaYhZdAaXU2o6c5GXKEtFRKlMVk_dIdvI_/pub?output=csv";
+// 🌐 إعدادات الاتصال السحابي المباشر بـ Supabase 
+// (قم بنسخ ولصق معطيات مشروعك الفعلي من لوحة تحكم Supabase -> Settings -> API)
+const SUPABASE_URL = "https://supabase.co";
+const SUPABASE_ANON_KEY = "your-anon-key-here";
 
 var staffDb = [];
 var groupCounter = 0; 
 
-// ⌨️ رصد ضغط مفتاح Enter للعبور المباشر والصامت دون أي نوافذ منبثقة أو تأكيدات عائقة
+// ⌨️ رصد ضغط مفتاح Enter للعبور المباشر والصامت دون أي تأكيدات منبثقة أو عوائق
 function handleEnterKey(event) {
     if (event.key === "Enter") {
         event.preventDefault();
@@ -53,58 +48,66 @@ function authenticateUserGateway() {
 }
 
 function initializePlatformUI() {
-    // [حل أمني حاسم]: فحص وجود المكتبة قبل الاستدعاء، وإن لم تكن جاهزة انتظرها 300 مللي ثانية وأعد المحاولة تلقائياً لتفادي الخطأ
-    if (typeof XLSX === 'undefined') {
-        document.getElementById('adminStatusLogs').innerText = '⏳ جاري تهيئة محرك التفريد السحابي...';
-        setTimeout(initializePlatformUI, 300);
-        return;
-    }
-    fetchStaffFromGoogleSheets();
+    fetchStaffFromSupabase();
 }
 
-// ⏳ معالجة روابط غوغل شيت والالتفاف الأوتوماتيكي الذكي على قيود الحظر الأمني للمتصفحات ومنع التجمد
-function fetchStaffFromGoogleSheets() {
-    if(!googleSheetCsvUrl || googleSheetCsvUrl.includes("⚠️")) {
-        document.getElementById('adminStatusLogs').innerText = '⚠️ المنصة تعمل محلياً بانتظار ربط السحابة.';
-        renderClusterStaffTable();
-        addNewDynamicGroupSection(); 
+// ⏳ محرك الجلب الآمن فائق السرعة والمشفر من جداول Supabase مباشرة وتجاوز مشاكل CORS لقوقل
+function fetchStaffFromSupabase() {
+    if (!SUPABASE_URL || SUPABASE_URL.includes("your-project-id")) {
+        loadBackupLocalDatabase("⚠️ المنصة تعمل محلياً بالقاعدة الافتراضية بانتظار تفعيل مفاتيح سوبابيس.");
         return;
     }
-    
-    document.getElementById('adminStatusLogs').innerText = '⏳ جاري الاتصال بالسحابة ومزامنة الكوادر الحية...';
-    
-    var directUrl = googleSheetCsvUrl.trim();
-    if (directUrl.includes('/edit')) {
-        var parts = directUrl.split('/edit');
-        directUrl = parts[0] + '/export?format=csv';
-    } else if (directUrl.includes('/pubhtml')) {
-        var partsHtml = directUrl.split('/pubhtml');
-        directUrl = partsHtml[0] + '/pub?output=csv';
-    }
 
-    fetch(directUrl)
-        .then(response => {
-            if (!response.ok) throw new Error('Network block');
-            return response.text();
-        })
-        .then(csvText => {
-            var workbook = XLSX.read(csvText, {type: 'string'});
-            var firstSheetName = workbook.SheetNames[0];
-            var worksheet = workbook.Sheets[firstSheetName];
-            staffDb = XLSX.utils.sheet_to_json(worksheet);
-            
-            document.getElementById('adminStatusLogs').innerText = '✅ تم التحديث السحابي! جلب عدد (' + staffDb.length + ') اسم كادر معتمد حياً.';
-            
-            populateClusterLeaderDropdown();
-            renderClusterStaffTable();
-            addNewDynamicGroupSection(); 
-        })
-        .catch(error => {
-            console.error("Cloud connection failed:", error);
-            document.getElementById('adminStatusLogs').innerText = '❌ فشل الاتصال بالسحابة، تحقق من صلاحية المشاركة ونشر الـ CSV.';
-            renderClusterStaffTable();
-            addNewDynamicGroupSection();
-        });
+    document.getElementById('adminStatusLogs').innerText = '⏳ جاري الاتصال بقاعدة بيانات Supabase ومزامنة الكوادر...';
+
+    fetch(`${SUPABASE_URL}/rest/v1/staff?select=*`, {
+        method: "GET",
+        headers: {
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('فشل الاستجابة من خادم سوبابيس');
+        return response.json();
+    })
+    .then(data => {
+        staffDb = data;
+        document.getElementById('adminStatusLogs').innerText = `✅ تم المزامنة مع Supabase! جلب عدد (${staffDb.length}) اسم كادر حياً.`;
+        document.getElementById('adminStatusLogs').style.color = "var(--success)";
+        
+        populateClusterLeaderDropdown();
+        renderClusterStaffTable();
+        addNewDynamicGroupSection();
+    })
+    .catch(error => {
+        console.error("Supabase connection error:", error);
+        loadBackupLocalDatabase("⚠️ فشل اتصال سوبابيس الحقيقي. تم تشغيل قاعدة البيانات الميدانية الاحتياطية بأمان.");
+    });
+}
+
+// 🛡️ خزان الأمان للحفاظ على عمل المنصة الميداني وضمان تعبئة الجداول حتى لو انقطع الإنترنت
+function loadBackupLocalDatabase(statusMsg) {
+    document.getElementById('adminStatusLogs').innerText = statusMsg;
+    document.getElementById('adminStatusLogs').style.color = "orange";
+    
+    staffDb = [
+        { "الاسم": "أحمد الأحمد", "الصفة": "رئيس تكتل", "الهاتف": "963911111111", "المكتب": "مكتب دمشق المركزي" },
+        { "الاسم": "محمود المصطفى", "الصفة": "رئيس تكتل", "الهاتف": "963922222222", "المكتب": "مكتب ريف دمشق الأول" },
+        { "الاسم": "ياسر المحمد", "الصفة": "رئيس مجموعة", "الهاتف": "963933333333", "المكتب": "مكتب حلب الإداري", "الفئة": "الفئة الأولى (1)" },
+        { "الاسم": "خالد العلي", "الصفة": "رئيس مجموعة", "الهاتف": "963944444444", "المكتب": "مكتب حمص الفرعي", "الفئة": "الفئة الثالثة (3)" },
+        { "الاسم": "محمد الشيخ", "الصفة": "منسق", "الهاتف": "963955555555" },
+        { "الاسم": "عبد الرحمن الحسين", "الصفة": "منسق", "الهاتف": "963966666666" },
+        { "الاسم": "فاطمة الزهراء", "الصفة": "موجهة دينية", "الهاتف": "963977777777" },
+        { "الاسم": "هند العبدالله", "الصفة": "موجهة دينية", "الهاتف": "963988888888" },
+        { "الاسم": "عمر الفاروق", "الصفة": "معاون", "الهاتف": "963999999999" },
+        { "الاسم": "باسل الحسن", "الصفة": "موجه ديني", "الهاتف": "963900000000" }
+    ];
+    
+    populateClusterLeaderDropdown();
+    renderClusterStaffTable();
+    addNewDynamicGroupSection(); 
 }
 
 function populateClusterLeaderDropdown() {
@@ -118,13 +121,12 @@ function populateClusterLeaderDropdown() {
     });
 }
 
-// 📊 تفعيل سحب وإدراج هاتف ومكتب تسجيل رئيس التكتل تلقائياً وفورياً بمجرد الاختيار
 function syncClusterLeaderData() {
     var selectedLeader = document.getElementById('c_leader_select').value;
     var phoneInput = document.getElementById('c_leader_phone');
     var officeInput = document.getElementById('c_registration_office');
     
-    var match = staffDb.find(function(s) { return s.الاسم === selectedLeader && s.الصفة === "رئيس تكتل"; });
+    var match = staffDb.find(s => s.الاسم === selectedLeader && s.الصفة === "رئيس تكتل");
     if(match) {
         phoneInput.value = match.الهاتف || 'غير مدرج';
         officeInput.value = match.المكتب || 'المكتب الرئيسي للمديرية'; 
@@ -220,8 +222,8 @@ function populateGroupLeaderDropdown(id) {
 function syncDynamicGroupLeaderData(id) {
     var selectedLeader = document.getElementById(`g_leader_select_${id}`).value;
     var phoneInput = document.getElementById(`g_leader_phone_${id}`);
-    var officeInput = document.getElementById(`g_office_${id}`);
-    var categoryInput = document.getElementById(`g_category_${id}`);
+    var officeInput = document.getElementById('g_office_' + id);
+    var categoryInput = document.getElementById('g_category_' + id);
 
     var match = staffDb.find(function(s) { return s.الاسم === selectedLeader && s.الصفة === "رئيس مجموعة"; });
     if(match) {
@@ -297,6 +299,23 @@ function appendRowToTable(tbody, rowIndex, role) {
     tbody.appendChild(tr);
 }
 
+// 📄 المحرك البرمجي الذكي المطور لصياغة وإصدار قرارات التشكيل الرسمية بصيغة PDF تلقائياً
+function generateOfficialPdfDecision() {
+    var element = document.getElementById('mainHajjPlatform');
+    var clusterName = document.getElementById('c_name').value || 'التكتل_الرئيسي';
+    
+    var opt = {
+        margin:       0.4,
+        filename:     'قرار_تشكيل_' + clusterName.replace(/\s+/g, '_') + '.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true }, 
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' } 
+    };
+    
+    // سحب وبناء ملف الـ PDF وتحميله فورا لجهاز المستخدم بدون نوافذ تأكيد
+    html2pdf().set(opt).from(element).save();
+}
+
 // تصدير كشوف التشكيل الكاملة إلى وثيقة إكسل مبوبة رسمية
 function exportFullClusterReport() {
     var clusterName = document.getElementById('c_name').value || "التكتل الرئيسي";
@@ -307,14 +326,3 @@ function exportFullClusterReport() {
         [""],
         ["اسم التكتل الرئيسي:", clusterName, "رئيس التكتل المعتمد:", leaderName],
         ["مكتب تسجيل التكتل:", document.getElementById('c_registration_office').value || "غير محدد", "رقم هاتف الرئيس:", document.getElementById('c_leader_phone').value || "غير محدد"],
-        ["إجمالي المجموعات المنضوية الحية:", document.getElementById('c_groups_num').value, "عدد فئات التكتل الإجمالية:", document.getElementById('c_categories_num').value],
-        [""]
-    ];
-
-    var wb = XLSX.utils.book_new();
-    var ws = XLSX.utils.aoa_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(wb, ws, "تقرير التشكيل المعتمد");
-    
-    var fileName = "تقرير_اعتماد_" + clusterName.replace(/\s+/g, '_') + ".xlsx";
-    XLSX.writeFile(wb, fileName);
-}

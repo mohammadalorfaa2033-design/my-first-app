@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>النظام المتقدم لإدارة التكتلات | مديرية الحج والعمرة</title>
-    <!-- استدعاء مكتبة SheetJS لقراءة وتصدير ملفات الإكسل سحابياً -->
+    <!-- استدعاء سحابي لمكتبة تفكيك وتوليد قرارات الـ PDF المتقدمة -->
     <script src="https://cloudflare.com"></script>
-    <!-- استدعاء ملف التصميم والمظهر الخارجي -->
+    <!-- استدعاء مكتبة SheetJS لقراءة وتصدير ملفات الإكسل احتياطياً -->
+    <script src="https://cloudflare.com"></script>
     <link rel="stylesheet" href="style.css">
-  <link rel="shortcut icon" href="#">
-  <link rel="icon" type="image/png" href="./favicon.png?v=1">
-
 </head>
 <body>
 
@@ -41,10 +39,13 @@
         <div style="font-size:12px; text-align:left;">الجمهورية العربية السورية<br>مديرية الحج والعمرة</div>
     </div>
 
-    <!-- شريط الأدوات العلوي (يحتوي فقط على زر تصدير التقرير المعتمد) -->
+    <!-- شريط الأدوات العلوي الجديد لمستخرجات الـ Excel والـ PDF الإدارية -->
     <div class="global-actions-bar">
         <div id="adminStatusLogs" style="font-size:13px; font-weight:bold; color:var(--success);">⏳ جاري الاتصال بالسحابة...</div>
-        <button class="btn btn-success" onclick="exportFullClusterReport()">📥 تصدير التقرير المعتمد (Excel)</button>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-danger" onclick="generateOfficialPdfDecision()">📄 إصدار قرار التشكيل (PDF)</button>
+            <button class="btn btn-success" onclick="exportFullClusterReport()">📥 تصدير التقرير المعتمد (Excel)</button>
+        </div>
     </div>
 
     <!-- التحديد الأول: كادر التكتل الرئيسي -->
@@ -56,9 +57,9 @@
             <select id="c_leader_select" onchange="syncClusterLeaderData()"><option value="">-- ابحث واختر رئيس التكتل --</option></select>
         </div>
         <div class="form-grid-cell"><label>رقم هاتف رئيس التكتل</label><input type="text" id="c_leader_phone" readonly placeholder="يُجلب تلقائياً"></div>
-        <div class="form-grid-cell"><label>مكتب التسجيل (رئيس التكتل)</label><input type="text" id="c_registration_office" readonly placeholder="يُجلب تلقائياً من مكتب الرئيس"></div>
+        <div class="form-grid-cell"><label>مكتب التسجيل (رئيس التكتل)</label><input type="text" id="c_registration_office" readonly placeholder="يُجلب تلقائياً من سوبابيس"></div>
         
-        <div class="form-grid-cell"><label>عدد المجموعات المنضوية</label><input type="number" id="c_groups_num" value="1" min="1"></div>
+        <div class="form-grid-cell"><label>عدد المجموعات المنضوية</label><input type="number" id="c_groups_num" value="1" min="1" readonly></div>
         <div class="form-grid-cell"><label>عدد الفئات ضمن التكتل</label><input type="text" id="c_categories_num" readonly placeholder="يُجلب تلقائياً من المجموعات"></div>
         <div class="form-grid-cell"><label>عدد المنسقين المطلوبة (أسماء)</label><input type="number" id="c_coord_num" value="2" min="0" oninput="renderClusterStaffTable()"></div>
         <div class="form-grid-cell"><label>عدد الموجهات المطلوبة (أسماء)</label><input type="number" id="c_guides_num" value="2" min="0" oninput="renderClusterStaffTable()"></div>
@@ -92,7 +93,6 @@
     </div>
 </div>
 
-<!-- استدعاء ملف التحكم والعمليات الخارجي -->
 <script src="app.js"></script>
 </body>
 </html>

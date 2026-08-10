@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>النظام المتقدم لإدارة التكتلات | مديرية الحج والعمرة</title>
-    <!-- استدعاء سحابي لمكتبة تفكيك وتوليد قرارات الـ PDF المتقدمة -->
+    <!-- استدعاء مكتبة html2pdf الذكية لإصدار قرارات التشكيل بصيغة PDF -->
     <script src="https://cloudflare.com"></script>
-    <!-- استدعاء مكتبة SheetJS لقراءة وتصدير ملفات الإكسل احتياطياً -->
+    <!-- استدعاء مكتبة SheetJS الاحتياطية لتصدير ملفات الإكسل -->
     <script src="https://cloudflare.com"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -39,7 +39,7 @@
         <div style="font-size:12px; text-align:left;">الجمهورية العربية السورية<br>مديرية الحج والعمرة</div>
     </div>
 
-    <!-- شريط الأدوات العلوي الجديد لمستخرجات الـ Excel والـ PDF الإدارية -->
+    <!-- شريط الأدوات العلوي المخصص لمستخرجات الـ Excel والـ PDF -->
     <div class="global-actions-bar">
         <div id="adminStatusLogs" style="font-size:13px; font-weight:bold; color:var(--success);">⏳ جاري الاتصال بالسحابة...</div>
         <div style="display: flex; gap: 10px;">
@@ -93,6 +93,7 @@
     </div>
 </div>
 
+<!-- استدعاء ملف التحكم والعمليات الخارجي الموحد -->
 <script src="app.js"></script>
 </body>
 </html>

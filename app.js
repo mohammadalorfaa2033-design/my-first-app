@@ -1,3 +1,10 @@
+// [إصلاح حاسم]: حقن برمي مبكر لمكتبة SheetJS لضمان استقرار الفرز لملفات الإكسل والتقارير
+if (typeof XLSX === 'undefined') {
+    var script = document.createElement('script');
+    script.src = "https://cloudflare.com";
+    document.head.appendChild(script);
+}
+
 // 🌐 إعدادات الاتصال السحابي المباشر بـ Supabase 
 // (قم بنسخ ولصق معطيات مشروعك الفعلي من لوحة تحكم Supabase -> Settings -> API)
 const SUPABASE_URL = "https://supabase.co";
@@ -48,6 +55,12 @@ function authenticateUserGateway() {
 }
 
 function initializePlatformUI() {
+    // [حل أمني حاسم]: فحص وجود المكتبة قبل الاستدعاء، وإن لم تكن جاهزة انتظرها 300 مللي ثانية وأعد المحاولة تلقائياً لتفادي الخطأ
+    if (typeof XLSX === 'undefined') {
+        document.getElementById('adminStatusLogs').innerText = '⏳ جاري تهيئة محرك التفريد السحابي...';
+        setTimeout(initializePlatformUI, 300);
+        return;
+    }
     fetchStaffFromSupabase();
 }
 
@@ -93,7 +106,7 @@ function loadBackupLocalDatabase(statusMsg) {
     document.getElementById('adminStatusLogs').style.color = "orange";
     
     staffDb = [
-        { "الاسم": "أحمد الأحمد", "الصفة": "رئيس تكتل", "الهاتف": "963911111111", "المكتب": "مكتب دمشق المركزي" },
+        { "الاسم": "أحمد الأحمد", "الصفة": "رئيس تكتل", "الهاتف": "963911111111", "المكتب": "مكتب dمشق المركزي" },
         { "الاسم": "محمود المصطفى", "الصفة": "رئيس تكتل", "الهاتف": "963922222222", "المكتب": "مكتب ريف دمشق الأول" },
         { "الاسم": "ياسر المحمد", "الصفة": "رئيس مجموعة", "الهاتف": "963933333333", "المكتب": "مكتب حلب الإداري", "الفئة": "الفئة الأولى (1)" },
         { "الاسم": "خالد العلي", "الصفة": "رئيس مجموعة", "الهاتف": "963944444444", "المكتب": "مكتب حمص الفرعي", "الفئة": "الفئة الثالثة (3)" },
@@ -208,17 +221,16 @@ function addNewDynamicGroupSection() {
 
 // تعبئة قوائم الاختيار لرؤساء المجموعات ديناميكياً لكل قسم جديد يضاف للمنصة
 function populateGroupLeaderDropdown(id) {
-    var selectElement = document.getElementById(`g_leader_select_${id}`);
+    var selectElement = document.getElementById(\`g_leader_select_\${id}\`);
     if(!selectElement) return;
     selectElement.innerHTML = '<option value="">-- ابحث واختر رئيس المجموعة --</option>';
     staffDb.forEach(function(person) {
-        if(person.الصفة === "رئيس مجموعة") {
+        if(person.Campany === "رئيس مجموعة" || person.الصفة === "رئيس مجموعة") {
             selectElement.innerHTML += '<option value="' + person.الاسم + '">' + person.الاسم + '</option>';
         }
     });
 }
-
-// 📋 السحب الآلي المشترك: جلب هاتف ومكتب وفئة رئيس المجموعة بمجرد اختياره أوتوماتيكياً من السحابة
+// 📋 جلب هاتف ومكتب وفئة رئيس المجموعة بمجرد اختياره أوتوماتيكياً من قاعدة البيانات السحابية
 function syncDynamicGroupLeaderData(id) {
     var selectedLeader = document.getElementById(`g_leader_select_${id}`).value;
     var phoneInput = document.getElementById(`g_leader_phone_${id}`);
@@ -299,7 +311,7 @@ function appendRowToTable(tbody, rowIndex, role) {
     tbody.appendChild(tr);
 }
 
-// 📄 المحرك البرمجي الذكي المطور لصياغة وإصدار قرارات التشكيل الرسمية بصيغة PDF تلقائياً
+// 📄 المحرك البرمجي المطور لصياغة وإصدار قرارات التشكيل الرسمية بصيغة PDF تلقائياً
 function generateOfficialPdfDecision() {
     var element = document.getElementById('mainHajjPlatform');
     var clusterName = document.getElementById('c_name').value || 'التكتل_الرئيسي';
@@ -312,7 +324,6 @@ function generateOfficialPdfDecision() {
         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' } 
     };
     
-    // سحب وبناء ملف الـ PDF وتحميله فورا لجهاز المستخدم بدون نوافذ تأكيد
     html2pdf().set(opt).from(element).save();
 }
 
@@ -326,3 +337,14 @@ function exportFullClusterReport() {
         [""],
         ["اسم التكتل الرئيسي:", clusterName, "رئيس التكتل المعتمد:", leaderName],
         ["مكتب تسجيل التكتل:", document.getElementById('c_registration_office').value || "غير محدد", "رقم هاتف الرئيس:", document.getElementById('c_leader_phone').value || "غير محدد"],
+        ["إجمالي المجموعات المنضوية الحية:", document.getElementById('c_groups_num').value, "عدد فئات التكتل الإجمالية:", document.getElementById('c_categories_num').value],
+        [""]
+    ];
+
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(wb, ws, "تقرير التشكيل المعتمد");
+    
+    var fileName = "قرار_اعتماد_" + clusterName.replace(/\s+/g, '_') + ".xlsx";
+    XLSX.writeFile(wb, fileName);
+}

@@ -7,8 +7,8 @@ if (typeof XLSX === 'undefined') {
 
 // 🌐 إعدادات الاتصال السحابي المباشر بـ Supabase 
 // (قم بنسخ ولصق معطيات مشروعك الفعلي من لوحة تحكم Supabase -> Settings -> API)
-const SUPABASE_URL = "https://supabase.co";
-const SUPABASE_ANON_KEY = "your-anon-key-here";
+const SUPABASE_URL = "https://nkcngzsjevgzurwxkjqn.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rY25nenNqZXZnenVyd3hranFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTQyMTEsImV4cCI6MjEwMTMzMDIxMX0.2UlqfEPT-TCBGnIfHqn1sArX1AOkhRr6zvnQt4evD0U";
 
 var staffDb = [];
 var groupCounter = 0; 

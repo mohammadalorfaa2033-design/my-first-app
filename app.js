@@ -1,10 +1,11 @@
 const SUPABASE_URL = "https://nkcngzsjevgzurwxkjqn.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rY25nenNqZXZnenVyd3hranFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTQyMTEsImV4cCI6MjEwMTMzMDIxMX0.2UlqfEPT-TCBGnIfHqn1sArX1AOkhRr6zvnQt4evD0U";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// كود المرحلة الأولى
+// 1. إعدادات المتغيرات السحابية (تكتب مرة واحدة فقط في بداية الملف)
 let globalStaffDatabase = [];
+let groupCounter = 1;
 
+// 2. نظام الحماية وبوابات الدخول المشروطة
 function togglePasswordVisibility() {
     const passwordInput = document.getElementById('accessPasscode');
     const eyeIcon = document.getElementById('eyeIcon');
@@ -35,6 +36,7 @@ async function authenticateUserGateway() {
     }
 }
 
+// 3. جلب الكوادر المعتمدة وتعبئة قوائم رئيس التكتل
 async function loadInitialStaffFromCloud() {
     const statusLog = document.getElementById('adminStatusLogs');
     statusLog.textContent = "⏳ جاري مزامنة الكوادر المعتمدة لموسم 1448 من السحابة...";
@@ -58,19 +60,11 @@ async function loadInitialStaffFromCloud() {
     }
     populateLeaderDropdown();
 }
-// كود المرحلة الثانية
-
-
 
 function populateLeaderDropdown() {
     const select = document.getElementById('c_leader_select');
     select.innerHTML = '<option value="">-- ابحث واختر رئيس التكتل --</option>';
-    
-    // تعديل مرن: يبحث عن أي صفة تحتوي على كلمة "رئيس تكتل" أو "تكتل" لضمان المطابقة
-    const leaders = globalStaffDatabase.filter(p => 
-        p.role_eligibility && (p.role_eligibility.includes("رئيس تكتل") || p.role_eligibility.includes("تكتل"))
-    );
-    
+    const leaders = globalStaffDatabase.filter(p => p.role_eligibility && (p.role_eligibility.includes("رئيس تكتل") || p.role_eligibility.includes("تكتل")));
     leaders.forEach(l => {
         const opt = document.createElement('option');
         opt.value = l.full_name; opt.textContent = l.full_name;
@@ -91,6 +85,7 @@ function syncClusterLeaderData() {
     }
 }
 
+// 4. بناء جداول الكادر الإداري الرئيسي في التكتل
 function renderClusterStaffTable() {
     const tbody = document.getElementById('clusterTableBody');
     tbody.innerHTML = "";
@@ -120,11 +115,8 @@ function renderClusterStaffTable() {
     });
 }
 
-// دالة فرز مرنة وجديدة تبحث باحتواء الكلمة لضمان القراءة من الإكسل المرفوع
 function getOptionsByFlexibleRole(searchKey) {
-    const filtered = globalStaffDatabase.filter(p => 
-        p.role_eligibility && p.role_eligibility.includes(searchKey)
-    );
+    const filtered = globalStaffDatabase.filter(p => p.role_eligibility && p.role_eligibility.includes(searchKey));
     return filtered.map(p => `<option value="${p.full_name}">${p.full_name}</option>`).join('');
 }
 
@@ -139,13 +131,7 @@ function syncStaffRowMeta(selectElement) {
     }
 }
 
-
-
-
-//////// كود المرحلة الثالثة
-
-
-let groupCounter = 1;
+// 5. محرك إدارة وتوليد المجموعات الفرعية وجداولها
 function addNewDynamicGroupSection() {
     const wrapper = document.getElementById('dynamicGroupsWrapper');
     const gId = groupCounter++;
@@ -153,7 +139,6 @@ function addNewDynamicGroupSection() {
     div.className = 'group-card-container';
     div.id = `group_block_${gId}`;
     
-    // تم هنا تحديث الفلتر برمجياً ليتطابق مع مسميات الإكسل المرفوع تلقائياً
     const groupLeadersOptions = globalStaffDatabase
         .filter(p => p.role_eligibility && p.role_eligibility.includes("رئيس مجموعة"))
         .map(p => `<option value="${p.full_name}">${p.full_name}</option>`)
@@ -199,177 +184,150 @@ function updateGroupCardHeader(gId) {
 }
 
 function syncGroupLeaderData(gId) {
-    const block = document.getElementById(`group_block_${gId}`);
-    const leaderName = block.querySelector('.g-leader-select').value;
-    const person = globalStaffDatabase.find(p => p.full_name === leaderName);
-    if (person) {
-        block.querySelector('.g-leader-phone').value = person.phone_number || "";
-        block.querySelector('.g-leader-office').value = person.registration_office || "";
-        block.querySelector('.g-categories').value = "1 فئة نشطة"; 
-    } else {
-        block.querySelector('.g-leader-phone').value = "";
-        block.querySelector('.g-leader-office').value = "";
-        block.querySelector('.g-categories').value = "";
-    }
-    updateGlobalMetrics();
-}
 
+
+
+
+
+const block = document.getElementById(group_block_${gId});
+const leaderName = block.querySelector('.g-leader-select').value;
+const person = globalStaffDatabase.find(p => p.full_name === leaderName);
+if (person) {
+block.querySelector('.g-leader-phone').value = person.phone_number || "";
+block.querySelector('.g-leader-office').value = person.registration_office || "";
+block.querySelector('.g-categories').value = "1 فئة نشطة";
+} else {
+block.querySelector('.g-leader-phone').value = "";
+block.querySelector('.g-leader-office').value = "";
+block.querySelector('.g-categories').value = "";
+}
+updateGlobalMetrics();
+}
 function renderGroupStaffTable(gId) {
-    const block = document.getElementById(`group_block_${gId}`);
-    const tbody = block.querySelector('.group-staff-tbody');
-    tbody.innerHTML = "";
-    const aCount = parseInt(block.querySelector('.g-assistants-count').value) || 0;
-    const cCount = parseInt(block.querySelector('.g-clergy-count').value) || 0;
-    let idx = 1;
-    for (let i = 0; i < aCount; i++) { appendGroupStaffRow(tbody, idx++, "معاون في المجموعة", "معاون"); }
-    for (let i = 0; i < cCount; i++) { appendGroupStaffRow(tbody, idx++, "موجه في المجموعة", "موجه"); }
+const block = document.getElementById(group_block_${gId});
+const tbody = block.querySelector('.group-staff-tbody');
+tbody.innerHTML = "";
+const aCount = parseInt(block.querySelector('.g-assistants-count').value) || 0;
+const cCount = parseInt(block.querySelector('.g-clergy-count').value) || 0;
+let idx = 1;
+for (let i = 0; i < aCount; i++) { appendGroupStaffRow(tbody, idx++, "معاون في المجموعة", "معاون"); }
+for (let i = 0; i < cCount; i++) { appendGroupStaffRow(tbody, idx++, "موجه في المجموعة", "موجه"); }
 }
-
 function appendGroupStaffRow(tbody, index, roleName, searchKey) {
-    const row = document.createElement('tr');
-    const staffOptions = globalStaffDatabase
-        .filter(p => p.role_eligibility && p.role_eligibility.includes(searchKey))
-        .map(p => `<option value="${p.full_name}">${p.full_name}</option>`)
-        .join('');
-
-    row.innerHTML = `
-        <td>${index}</td>
-        <td><strong>${roleName}</strong></td>
-        <td>
-            <select class="g-row-staff-select" onchange="syncStaffRowMeta(this); saveCurrentStateToLocalStorage();">
-                <option value="">-- اختر الاسم --</option>
-                ${staffOptions}
-            </select>
-        </td>
-        <td><input type="text" class="row-approved-role" readonly placeholder="تلقائي"></td>
-    `;
-    tbody.appendChild(row);
+const row = document.createElement('tr');
+const staffOptions = globalStaffDatabase.filter(p => p.role_eligibility && p.role_eligibility.includes(searchKey)).map(p => <option value="${p.full_name}">${p.full_name}</option>).join('');
+row.innerHTML = <td>${index}</td> <td><strong>${roleName}</strong></td> <td><select class="g-row-staff-select" onchange="syncStaffRowMeta(this); saveCurrentStateToLocalStorage();"><option value="">-- اختر الاسم --</option>${staffOptions}</select></td> <td><input type="text" class="row-approved-role" readonly placeholder="تلقائي"></td>;
+tbody.appendChild(row);
 }
-
 function removeGroupSection(gId) {
-    document.getElementById(`group_block_${gId}`).remove();
-    updateGlobalMetrics();
-    saveCurrentStateToLocalStorage();
+document.getElementById(group_block_${gId}).remove();
+updateGlobalMetrics();
+saveCurrentStateToLocalStorage();
 }
-
 function updateGlobalMetrics() {
-    const totalGroups = document.getElementById('dynamicGroupsWrapper').children.length;
-    document.getElementById('c_groups_num').value = totalGroups;
-    document.getElementById('c_categories_num').value = totalGroups > 0 ? `${totalGroups} فئات نشطة` : "0 فئات";
+const totalGroups = document.getElementById('dynamicGroupsWrapper').children.length;
+document.getElementById('c_groups_num').value = totalGroups;
+document.getElementById('c_categories_num').value = totalGroups > 0 ? ${totalGroups} فئات نشطة : "0 فئات";
 }
-
- //////////////////////////////// كود المرحلة الرابعة
+// 6. نظام الحفظ التلقائي على مستعرض المتصفح (Local Storage)
 function saveCurrentStateToLocalStorage() {
-    const state = {
-        c_name: document.getElementById('c_name').value,
-        c_leader: document.getElementById('c_leader_select').value,
-        c_assistants: document.getElementById('c_assistants_num').value,
-        c_coord: document.getElementById('c_coord_num').value,
-        c_guides: document.getElementById('c_guides_num').value,
-        groups: []
-    };
-    const groupsBlocks = document.getElementById('dynamicGroupsWrapper').children;
-    for (let block of groupsBlocks) {
-        state.groups.push({
-            name: block.querySelector('.g-name').value,
-            leader: block.querySelector('.g-leader-select').value,
-            assistants: block.querySelector('.g-assistants-count').value,
-            clergy: block.querySelector('.g-clergy-count').value
-        });
-    }
-    localStorage.setItem('hajj_platform_state', JSON.stringify(state));
+const state = {
+c_name: document.getElementById('c_name').value,
+c_leader: document.getElementById('c_leader_select').value,
+c_assistants: document.getElementById('c_assistants_num').value,
+c_coord: document.getElementById('c_coord_num').value,
+c_guides: document.getElementById('c_guides_num').value,
+groups: []
+};
+const groupsBlocks = document.getElementById('dynamicGroupsWrapper').children;
+for (let block of groupsBlocks) {
+state.groups.push({
+name: block.querySelector('.g-name').value,
+leader: block.querySelector('.g-leader-select').value,
+assistants: block.querySelector('.g-assistants-count').value,
+clergy: block.querySelector('.g-clergy-count').value
+});
 }
-
+localStorage.setItem('hajj_platform_state', JSON.stringify(state));
+}
 function loadStateFromLocalStorage() {
-    const saved = localStorage.getItem('hajj_platform_state');
-    if (!saved) return;
-    try {
-        const state = JSON.parse(saved);
-        document.getElementById('c_name').value = state.c_name || "";
-        document.getElementById('c_leader_select').value = state.c_leader || "";
-        syncClusterLeaderData();
-        document.getElementById('c_assistants_num').value = state.c_assistants || 0;
-        document.getElementById('c_coord_num').value = state.c_coord || 0;
-        document.getElementById('c_guides_num').value = state.c_guides || 0;
-        renderClusterStaffTable();
-        state.groups.forEach(g => {
-            addNewDynamicGroupSection();
-            const lastBlock = document.getElementById('dynamicGroupsWrapper').lastChild;
-            lastBlock.querySelector('.g-name').value = g.name;
-            lastBlock.querySelector('.g-leader-select').value = g.leader;
-            lastBlock.querySelector('.g-assistants-count').value = g.assistants;
-            lastBlock.querySelector('.g-clergy-count').value = g.clergy;
-            const gId = lastBlock.id.replace('group_block_', '');
-            updateGroupCardHeader(gId);
-            syncGroupLeaderData(gId);
-            renderGroupStaffTable(gId);
-        });
-    } catch(e) { console.error("خطأ في استعادة البيانات المخزنة محلياً", e); }
+const saved = localStorage.getItem('hajj_platform_state');
+if (!saved) return;
+try {
+const state = JSON.parse(saved);
+document.getElementById('c_name').value = state.c_name || "";
+document.getElementById('c_leader_select').value = state.c_leader || "";
+syncClusterLeaderData();
+document.getElementById('c_assistants_num').value = state.c_assistants || 0;
+document.getElementById('c_coord_num').value = state.c_coord || 0;
+document.getElementById('c_guides_num').value = state.c_guides || 0;
+renderClusterStaffTable();
+state.groups.forEach(g => {
+addNewDynamicGroupSection();
+const lastBlock = document.getElementById('dynamicGroupsWrapper').lastChild;
+lastBlock.querySelector('.g-name').value = g.name;
+lastBlock.querySelector('.g-leader-select').value = g.leader;
+lastBlock.querySelector('.g-assistants-count').value = g.assistants;
+lastBlock.querySelector('.g-clergy-count').value = g.clergy;
+const gId = lastBlock.id.replace('group_block_', '');
+updateGroupCardHeader(gId);
+syncGroupLeaderData(gId);
+renderGroupStaffTable(gId);
+});
+} catch(e) { console.error("خطأ في استعادة البيانات المخزنة محلياً", e); }
 }
-
+// 7. إقفال التعديلات والرفع السحابي النهائي لـ supadate
 async function commitAndLockCluster() {
-    const cName = document.getElementById('c_name').value || "تكتل غير مسمى";
-    const btn = document.getElementById('btnLockCluster');
-    btn.textContent = "⏳ جاري إرسال التشكيل المعتمد لـ supadate...";
-    const payload = [{
-        cluster_name: cName,
-        leader_name: document.getElementById('c_leader_select').value,
-        total_groups: document.getElementById('c_groups_num').value,
-        timestamp_approved: new Date().toISOString()
-    }];
-    await supabaseClient.from('approved_clusters').insert(payload);
-    btn.className = "btn btn-success";
-    btn.style.backgroundColor = "#00875a";
-    btn.style.borderColor = "#00875a";
-    btn.textContent = "🟢 تم اعتماد التشكيل";
-    document.querySelectorAll('input, select, button').forEach(el => {
-        if(el.id !== 'btnLockCluster') { el.disabled = true; }
-    });
-    document.getElementById('btnAddGroup').style.display = 'none';
-    document.querySelectorAll('.btn-remove-group').forEach(b => b.style.display = 'none');
-    alert("🔐 تم قفل التشكيل بنجاح سحابياً على منصة supadate وجمدت الواجهة الثانية عن التعديل.");
+const cName = document.getElementById('c_name').value || "تكتل غير مسمى";
+const btn = document.getElementById('btnLockCluster');
+btn.textContent = "⏳ جاري إرسال التشكيل المعتمد لـ supadate...";
+const payload = [{
+cluster_name: cName,
+leader_name: document.getElementById('c_leader_select').value,
+total_groups: document.getElementById('c_groups_num').value,
+timestamp_approved: new Date().toISOString()
+}];
+await supabaseClient.from('approved_clusters').insert(payload);
+btn.className = "btn btn-success";
+btn.style.backgroundColor = "#00875a";
+btn.style.borderColor = "#00875a";
+btn.textContent = "🟢 تم اعتماد التشكيل";
+document.querySelectorAll('input, select, button').forEach(el => {
+if(el.id !== 'btnLockCluster') { el.disabled = true; }
+});
+document.getElementById('btnAddGroup').style.display = 'none';
+document.querySelectorAll('.btn-remove-group').forEach(b => b.style.display = 'none');
+alert("🔐 تم قفل التشكيل بنجاح سحابياً على منصة supadate وجمدت الواجهة الثانية عن التعديل.");
 }
-
 function generateOfficialPdfDecision() {
-    const wrapper = document.getElementById('dynamicGroupsWrapper').children;
-    for(let block of wrapper) { block.classList.add('page-break'); }
-    window.print();
+const wrapper = document.getElementById('dynamicGroupsWrapper').children;
+for(let block of wrapper) { block.classList.add('page-break'); }
+window.print();
 }
-
+// 8. واجهة المتابعة والتدقيق الخاصة بالإدارة العليا
 async function loadApprovedClustersListForAdmin() {
-    const selector = document.getElementById('adminClusterSelector');
-    const sampleApproved = ["التكتل الرئيسي رقم 1", "تكتل المحافظات الشمالية", "تكتل الفئة المتميزة"];
-    selector.innerHTML = '<option value="">-- اختر اسم التكتل المستدعى --</option>';
-    sampleApproved.forEach(c => {
-        selector.innerHTML += `<option value="${c}">${c}</option>`;
-    });
+const selector = document.getElementById('adminClusterSelector');
+const sampleApproved = ["التكتل الرئيسي رقم 1", "تكتل المحافظات الشمالية", "تكتل الفئة المتميزة"];
+selector.innerHTML = '-- اختر اسم التكتل المستدعى --';
+sampleApproved.forEach(c => { selector.innerHTML += <option value="${c}">${c}</option>; });
 }
-
 function loadApprovedClusterDetailsFromSupabase() {
-    const selected = document.getElementById('adminClusterSelector').value;
-    const display = document.getElementById('adminDataDisplayArea');
-    if(!selected) { display.style.display = 'none'; return; }
-    display.style.display = 'block';
-    display.innerHTML = `
-        <div class="section-title">📝 استعراض بيانات supadate الحية للتكتل: ${selected}</div>
-        <div style="padding:20px; border:1px solid #000; background:#fff;">
-            <p><strong>حالة التشكيل الإداري:</strong> معتمد ومقفل بالكامل من رئيس التكتل</p>
-            <p><strong>تاريخ وتوقيت المزامنة الميدانية السحابية:</strong> ${new Date().toLocaleString('ar-SY')}</p>
-            <div style="color:var(--success); font-weight:bold;">🟢 كافة جداول الأسماء والكادرات الإدارية التابعة محفوظة ومحمية سحابياً بنجاح في قاعدة البيانات.</div>
-        </div>
-    `;
+const selected = document.getElementById('adminClusterSelector').value;
+const display = document.getElementById('adminDataDisplayArea');
+if(!selected) { display.style.display = 'none'; return; }
+display.style.display = 'block';
+display.innerHTML = <div class="section-title">📝 استعراض بيانات supadate الحية للتكتل: ${selected}</div> <div style="padding:20px; border:1px solid #000; background:#fff;"> <p><strong>حالة التشكيل الإداري:</strong> معتمد ومقفل بالكامل من رئيس التكتل</p> <p><strong>تاريخ وتوقيت المزامنة الميدانية السحابية:</strong> ${new Date().toLocaleString('ar-SY')}</p> <div style="color:var(--success); font-weight:bold;">🟢 كافة جداول الأسماء والكادرات الإدارية التابعة محفوظة ومحمية سحابياً بنجاح في قاعدة البيانات.</div> </div>;
 }
-
 function importExcelToSupabase(event) {
-    const file = event.target.files;
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, {type: 'array'});
-        const sheet = workbook.Sheets[workbook.SheetNames];
-        const json = XLSX.utils.sheet_to_json(sheet);
-        alert(`📊 نجحت القراءة الميدانية: تم رصد وتحليل ${json.length} صف كادر من ملف الإكسل، وجاري المزامنة لـ supadate!`);
-    };
-    reader.readAsArrayBuffer(file);
+const file = event.target.files;
+if (!file) return;
+const reader = new FileReader();
+reader.onload = function(e) {
+const data = new Uint8Array(e.target.result);
+const workbook = XLSX.read(data, {type: 'array'});
+const sheet = workbook.Sheets[workbook.SheetNames];
+const json = XLSX.utils.sheet_to_json(sheet);
+alert(📊 نجحت القراءة الميدانية: تم رصد وتحليل ${json.length} صف كادر من ملف الإكسل، وجاري المزامنة لـ supadate!);
+};
+reader.readAsArrayBuffer(file);
 }

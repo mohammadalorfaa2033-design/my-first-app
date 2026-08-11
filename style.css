@@ -162,13 +162,13 @@ th { background: #e6ebf4; font-weight: bold; }
 .add-group-action-container { text-align: center; margin: 30px 0; }
 .official-footer { display: flex; justify-content: space-between; margin-top: 40px; font-weight: bold; font-size: 13px; border-top: 1px dashed #ccc; padding-top: 20px; }
 
-/* 🖨️ هندسة وضوابط التقارير المستخرجة وطباعة الصفحات المنفصلة للـ PDF المعتمد */
+/* 🖨️ نمط إعدادات استخراج ورقة التشكيل لملف الـ PDF متعدد الصفحات */
 @media print {
     body { background-color: #fff; padding: 0; }
     .container { box-shadow: none; border: none; max-width: 100%; padding: 0; }
     .global-actions-bar, .add-group-action-container, .excel-uploader-card, select, input[type="number"], .btn-danger, button { display: none !important; }
     input[type="text"], select { border: none; background: transparent; padding: 0; font-weight: bold; appearance: none; -webkit-appearance: none; }
     
-    /* فرض كسر الصفحة إجبارياً بعد تقرير الكادر الرئيسي وكل مجموعة فرعية */
+    /* فرض كسر الصفحة إجبارياً بحيث تطبع كل مجموعة في صفحة منفصلة تماماً */
     .page-break { page-break-after: always; break-after: page; }
 }

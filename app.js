@@ -20,12 +20,12 @@ function handleEnterKey(event) {
 
 async function authenticateUserGateway() {
     const passcode = document.getElementById('accessPasscode').value;
-    if (passcode === "Admin@123456") {
+    if (passcode === "123456@Admin") {
         document.getElementById('gatekeeperSystem').style.display = 'none';
         document.getElementById('leaderPlatform').style.display = 'block';
         await loadInitialStaffFromCloud();
         loadStateFromLocalStorage();
-    } else if (passcode === "AdminHajj@123456") {
+    } else if (passcode === "123456@AdminHajj") {
         document.getElementById('gatekeeperSystem').style.display = 'none';
         document.getElementById('adminPlatform').style.display = 'block';
         await loadApprovedClustersListForAdmin();
@@ -57,6 +57,7 @@ async function loadInitialStaffFromCloud() {
     }
     populateLeaderDropdown();
 }
+
 function populateLeaderDropdown() {
     const select = document.getElementById('c_leader_select');
     select.innerHTML = '<option value="">-- ابحث واختر رئيس التكتل --</option>';
@@ -125,6 +126,7 @@ function syncStaffRowMeta(selectElement) {
         roleInput.value = "";
     }
 }
+
 let groupCounter = 1;
 function addNewDynamicGroupSection() {
     const wrapper = document.getElementById('dynamicGroupsWrapper');
@@ -225,7 +227,6 @@ function updateGlobalMetrics() {
     document.getElementById('c_groups_num').value = totalGroups;
     document.getElementById('c_categories_num').value = totalGroups > 0 ? `${totalGroups} فئات نشطة` : "0 فئات";
 }
-
 function saveCurrentStateToLocalStorage() {
     const state = {
         c_name: document.getElementById('c_name').value,
@@ -271,7 +272,7 @@ function loadStateFromLocalStorage() {
             syncGroupLeaderData(gId);
             renderGroupStaffTable(gId);
         });
-    } catch(e) { console.error("خطأ في استعادة البيانات", e); }
+    } catch(e) { console.error("خطأ في استعادة البيانات المخزنة محلياً", e); }
 }
 
 async function commitAndLockCluster() {
@@ -294,7 +295,7 @@ async function commitAndLockCluster() {
     });
     document.getElementById('btnAddGroup').style.display = 'none';
     document.querySelectorAll('.btn-remove-group').forEach(b => b.style.display = 'none');
-    alert("🔐 تم قفل التشكيل بنجاح سحابياً على منصة supadate وجمدت الواجهة.");
+    alert("🔐 تم قفل التشكيل بنجاح سحابياً على منصة supadate وجمدت الواجهة الثانية عن التعديل.");
 }
 
 function generateOfficialPdfDecision() {
@@ -315,20 +316,28 @@ async function loadApprovedClustersListForAdmin() {
 function loadApprovedClusterDetailsFromSupabase() {
     const selected = document.getElementById('adminClusterSelector').value;
     const display = document.getElementById('adminDataDisplayArea');
-if(!selected) { display.style.display = 'none'; return; }
-display.style.display = 'block';
-display.innerHTML = <div class="section-title">📝 استعراض بيانات supadate الحية للتكتل: ${selected}</div> <div style="padding:20px; border:1px solid #000; background:#fff;"> <p><strong>حالة التشكيل الإداري:</strong> معتمد ومقفل بالكامل من رئيس التكتل</p> <p><strong>تاريخ وتوقيت المزامنة الميدانية السحابية:</strong> ${new Date().toLocaleString('ar-SY')}</p> <div style="color:var(--success); font-weight:bold;">🟢 كافة جداول الأسماء والكادرات الإدارية التابعة محفوظة ومحمية سحابياً بنجاح في قاعدة البيانات.</div> </div>;
+    if(!selected) { display.style.display = 'none'; return; }
+    display.style.display = 'block';
+    display.innerHTML = `
+        <div class="section-title">📝 استعراض بيانات supadate الحية للتكتل: ${selected}</div>
+        <div style="padding:20px; border:1px solid #000; background:#fff;">
+            <p><strong>حالة التشكيل الإداري:</strong> معتمد ومقفل بالكامل من رئيس التكتل</p>
+            <p><strong>تاريخ وتوقيت المزامنة الميدانية السحابية:</strong> ${new Date().toLocaleString('ar-SY')}</p>
+            <div style="color:var(--success); font-weight:bold;">🟢 كافة جداول الأسماء والكادرات الإدارية التابعة محفوظة ومحمية سحابياً بنجاح في قاعدة البيانات.</div>
+        </div>
+    `;
 }
+
 function importExcelToSupabase(event) {
-const file = event.target.files;
-if (!file) return;
-const reader = new FileReader();
-reader.onload = function(e) {
-const data = new Uint8Array(e.target.result);
-const workbook = XLSX.read(data, {type: 'array'});
-const sheet = workbook.Sheets[workbook.SheetNames];
-const json = XLSX.utils.sheet_to_json(sheet);
-alert(📊 نجحت القراءة: تم رصد وتحليل ${json.length} صف كادر من ملف الإكسل، وجاري المزامنة التلقائية لـ supadate!);
-};
-reader.readAsArrayBuffer(file);
+    const file = event.target.files;
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type: 'array'});
+        const sheet = workbook.Sheets[workbook.SheetNames];
+        const json = XLSX.utils.sheet_to_json(sheet);
+        alert(`📊 نجحت القراءة الميدانية: تم رصد وتحليل ${json.length} صف كادر من ملف الإكسل، وجاري المزامنة لـ supadate!`);
+    };
+    reader.readAsArrayBuffer(file);
 }

@@ -185,7 +185,8 @@ function updateGroupCardHeader(gId) {
 
 function syncGroupLeaderData(gId) {
 
-    const block = document.getElementById(group_block_${gId});
+ const block = document.getElementById(`group_block_${gId}`);
+
     const leaderName = block.querySelector('.g-leader-select').value;
     const person = globalStaffDatabase.find(p => p.full_name === leaderName);
     if (person) {
@@ -200,7 +201,8 @@ function syncGroupLeaderData(gId) {
     updateGlobalMetrics();
 }
 function renderGroupStaffTable(gId) {
-    const block = document.getElementById(group_block_${gId});
+    const block = document.getElementById(`group_block_${gId}`);
+
     const tbody = block.querySelector('.group-staff-tbody');
     tbody.innerHTML = "";
     const aCount = parseInt(block.querySelector('.g-assistants-count').value) || 0;

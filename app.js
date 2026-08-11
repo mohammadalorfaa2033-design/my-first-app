@@ -20,12 +20,12 @@ function handleEnterKey(event) {
 
 async function authenticateUserGateway() {
     const passcode = document.getElementById('accessPasscode').value;
-    if (passcode === "123456@Admin") {
+    if (passcode === "Admin@123456") {
         document.getElementById('gatekeeperSystem').style.display = 'none';
         document.getElementById('leaderPlatform').style.display = 'block';
         await loadInitialStaffFromCloud();
         loadStateFromLocalStorage();
-    } else if (passcode === "123456@AdminHajj") {
+    } else if (passcode === "AdminHajj@123456") {
         document.getElementById('gatekeeperSystem').style.display = 'none';
         document.getElementById('adminPlatform').style.display = 'block';
         await loadApprovedClustersListForAdmin();

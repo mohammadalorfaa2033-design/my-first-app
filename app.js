@@ -185,68 +185,77 @@ function updateGroupCardHeader(gId) {
 
 function syncGroupLeaderData(gId) {
 
-
-
-
-
-const block = document.getElementById(group_block_${gId});
-const leaderName = block.querySelector('.g-leader-select').value;
-const person = globalStaffDatabase.find(p => p.full_name === leaderName);
-if (person) {
-block.querySelector('.g-leader-phone').value = person.phone_number || "";
-block.querySelector('.g-leader-office').value = person.registration_office || "";
-block.querySelector('.g-categories').value = "1 فئة نشطة";
-} else {
-block.querySelector('.g-leader-phone').value = "";
-block.querySelector('.g-leader-office').value = "";
-block.querySelector('.g-categories').value = "";
-}
-updateGlobalMetrics();
+    const block = document.getElementById(group_block_${gId});
+    const leaderName = block.querySelector('.g-leader-select').value;
+    const person = globalStaffDatabase.find(p => p.full_name === leaderName);
+    if (person) {
+        block.querySelector('.g-leader-phone').value = person.phone_number || "";
+        block.querySelector('.g-leader-office').value = person.registration_office || "";
+        block.querySelector('.g-categories').value = "1 فئة نشطة";
+    } else {
+        block.querySelector('.g-leader-phone').value = "";
+        block.querySelector('.g-leader-office').value = "";
+        block.querySelector('.g-categories').value = "";
+    }
+    updateGlobalMetrics();
 }
 function renderGroupStaffTable(gId) {
-const block = document.getElementById(group_block_${gId});
-const tbody = block.querySelector('.group-staff-tbody');
-tbody.innerHTML = "";
-const aCount = parseInt(block.querySelector('.g-assistants-count').value) || 0;
-const cCount = parseInt(block.querySelector('.g-clergy-count').value) || 0;
-let idx = 1;
-for (let i = 0; i < aCount; i++) { appendGroupStaffRow(tbody, idx++, "معاون في المجموعة", "معاون"); }
-for (let i = 0; i < cCount; i++) { appendGroupStaffRow(tbody, idx++, "موجه في المجموعة", "موجه"); }
+    const block = document.getElementById(group_block_${gId});
+    const tbody = block.querySelector('.group-staff-tbody');
+    tbody.innerHTML = "";
+    const aCount = parseInt(block.querySelector('.g-assistants-count').value) || 0;
+    const cCount = parseInt(block.querySelector('.g-clergy-count').value) || 0;
+    let idx = 1;
+    for (let i = 0; i < aCount; i++) { appendGroupStaffRow(tbody, idx++, "معاون في المجموعة", "معاون"); }
+    for (let i = 0; i < cCount; i++) { appendGroupStaffRow(tbody, idx++, "موجه في المجموعة", "موجه"); }
 }
 function appendGroupStaffRow(tbody, index, roleName, searchKey) {
-const row = document.createElement('tr');
-const staffOptions = globalStaffDatabase.filter(p => p.role_eligibility && p.role_eligibility.includes(searchKey)).map(p => <option value="${p.full_name}">${p.full_name}</option>).join('');
-row.innerHTML = <td>${index}</td> <td><strong>${roleName}</strong></td> <td><select class="g-row-staff-select" onchange="syncStaffRowMeta(this); saveCurrentStateToLocalStorage();"><option value="">-- اختر الاسم --</option>${staffOptions}</select></td> <td><input type="text" class="row-approved-role" readonly placeholder="تلقائي"></td>;
-tbody.appendChild(row);
+    const row = document.createElement('tr');
+    const staffOptions = globalStaffDatabase.filter(p => p.role_eligibility && p.role_eligibility.includes(searchKey)).map(p => <option value="${p.full_name}">${p.full_name}</option>).join('');
+    row.innerHTML = `
+    <td>${index}</td> 
+    <td><strong>${roleName}</strong></td> 
+    <td>
+        <select class="g-row-staff-select" onchange="syncStaffRowMeta(this); saveCurrentStateToLocalStorage();">
+            <option value="">-- اختر الاسم --</option>
+            ${staffOptions}
+        </select>
+    </td> 
+    <td><input type="text" class="row-approved-role" readonly placeholder="تلقائي"></td>
+    `;
+
+    tbody.appendChild(row);
 }
 function removeGroupSection(gId) {
-document.getElementById(group_block_${gId}).remove();
-updateGlobalMetrics();
-saveCurrentStateToLocalStorage();
+    document.getElementById(`group_block_${gId}`).remove();
+
+    updateGlobalMetrics();
+    saveCurrentStateToLocalStorage();
 }
 function updateGlobalMetrics() {
-const totalGroups = document.getElementById('dynamicGroupsWrapper').children.length;
-document.getElementById('c_groups_num').value = totalGroups;
-document.getElementById('c_categories_num').value = totalGroups > 0 ? ${totalGroups} فئات نشطة : "0 فئات";
+    const totalGroups = document.getElementById('dynamicGroupsWrapper').children.length;
+    document.getElementById('c_groups_num').value = totalGroups;
+    document.getElementById('c_categories_num').value = totalGroups > 0 ? `${totalGroups} فئات نشطة` : "0 فئات";
+
 }
 // 6. نظام الحفظ التلقائي على مستعرض المتصفح (Local Storage)
 function saveCurrentStateToLocalStorage() {
-const state = {
-c_name: document.getElementById('c_name').value,
-c_leader: document.getElementById('c_leader_select').value,
-c_assistants: document.getElementById('c_assistants_num').value,
-c_coord: document.getElementById('c_coord_num').value,
-c_guides: document.getElementById('c_guides_num').value,
-groups: []
-};
+    const state = {
+        c_name: document.getElementById('c_name').value,
+        c_leader: document.getElementById('c_leader_select').value,
+        c_assistants: document.getElementById('c_assistants_num').value,
+        c_coord: document.getElementById('c_coord_num').value,
+        c_guides: document.getElementById('c_guides_num').value,
+        groups: []
+    };
 const groupsBlocks = document.getElementById('dynamicGroupsWrapper').children;
 for (let block of groupsBlocks) {
-state.groups.push({
-name: block.querySelector('.g-name').value,
-leader: block.querySelector('.g-leader-select').value,
-assistants: block.querySelector('.g-assistants-count').value,
-clergy: block.querySelector('.g-clergy-count').value
-});
+    state.groups.push({
+    name: block.querySelector('.g-name').value,
+    leader: block.querySelector('.g-leader-select').value,
+    assistants: block.querySelector('.g-assistants-count').value,
+    clergy: block.querySelector('.g-clergy-count').value
+    });
 }
 localStorage.setItem('hajj_platform_state', JSON.stringify(state));
 }
@@ -316,7 +325,14 @@ const selected = document.getElementById('adminClusterSelector').value;
 const display = document.getElementById('adminDataDisplayArea');
 if(!selected) { display.style.display = 'none'; return; }
 display.style.display = 'block';
-display.innerHTML = <div class="section-title">📝 استعراض بيانات supadate الحية للتكتل: ${selected}</div> <div style="padding:20px; border:1px solid #000; background:#fff;"> <p><strong>حالة التشكيل الإداري:</strong> معتمد ومقفل بالكامل من رئيس التكتل</p> <p><strong>تاريخ وتوقيت المزامنة الميدانية السحابية:</strong> ${new Date().toLocaleString('ar-SY')}</p> <div style="color:var(--success); font-weight:bold;">🟢 كافة جداول الأسماء والكادرات الإدارية التابعة محفوظة ومحمية سحابياً بنجاح في قاعدة البيانات.</div> </div>;
+display.innerHTML = `
+    <div class="section-title">📝 استعراض بيانات supadate الحية للتكتل: ${selected}</div> 
+    <div style="padding:20px; border:1px solid #000; background:#fff;"> 
+        <p><strong>حالة التشكيل الإداري:</strong> معتمد ومقفل بالكامل من رئيس التكتل</p> 
+        <p><strong>تاريخ وتوقيت المزامنة الميدانية السحابية:</strong> ${new Date().toLocaleString('ar-SY')}</p> 
+        <div style="color:var(--success); font-weight:bold;">🟢 كافة جداول الأسماء والكادرات الإدارية التابعة محفوظة ومحمية سحابياً بنجاح في قاعدة البيانات.</div> 
+    </div>
+`;
 }
 function importExcelToSupabase(event) {
 const file = event.target.files;
@@ -327,7 +343,7 @@ const data = new Uint8Array(e.target.result);
 const workbook = XLSX.read(data, {type: 'array'});
 const sheet = workbook.Sheets[workbook.SheetNames];
 const json = XLSX.utils.sheet_to_json(sheet);
-alert(📊 نجحت القراءة الميدانية: تم رصد وتحليل ${json.length} صف كادر من ملف الإكسل، وجاري المزامنة لـ supadate!);
+alert(`📊 نجحت القراءة الميدانية: تم رصد وتحليل ${json.length} صف كادر من ملف الإكسل، وجاري المزامنة لـ supadate!`);
 };
 reader.readAsArrayBuffer(file);
 }

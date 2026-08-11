@@ -2,6 +2,11 @@ const SUPABASE_URL = "https://nkcngzsjevgzurwxkjqn.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rY25nenNqZXZnenVyd3hranFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTQyMTEsImV4cCI6MjEwMTMzMDIxMX0.2UlqfEPT-TCBGnIfHqn1sArX1AOkhRr6zvnQt4evD0U";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// كود المرحلة الأولى
+const SUPABASE_URL = "https://supabase.co";
+const SUPABASE_KEY = "your-anon-key";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 let globalStaffDatabase = [];
 
 function togglePasswordVisibility() {
@@ -20,12 +25,12 @@ function handleEnterKey(event) {
 
 async function authenticateUserGateway() {
     const passcode = document.getElementById('accessPasscode').value;
-    if (passcode === "Admin@123456") {
+    if (passcode === "123456@Admin") {
         document.getElementById('gatekeeperSystem').style.display = 'none';
         document.getElementById('leaderPlatform').style.display = 'block';
         await loadInitialStaffFromCloud();
         loadStateFromLocalStorage();
-    } else if (passcode === "AdminHajj@123456") {
+    } else if (passcode === "123456@AdminHajj") {
         document.getElementById('gatekeeperSystem').style.display = 'none';
         document.getElementById('adminPlatform').style.display = 'block';
         await loadApprovedClustersListForAdmin();
@@ -57,11 +62,19 @@ async function loadInitialStaffFromCloud() {
     }
     populateLeaderDropdown();
 }
+// كود المرحلة الثانية
+
+
 
 function populateLeaderDropdown() {
     const select = document.getElementById('c_leader_select');
     select.innerHTML = '<option value="">-- ابحث واختر رئيس التكتل --</option>';
-    const leaders = globalStaffDatabase.filter(p => p.role_eligibility === "رئيس تكتل");
+    
+    // تعديل مرن: يبحث عن أي صفة تحتوي على كلمة "رئيس تكتل" أو "تكتل" لضمان المطابقة
+    const leaders = globalStaffDatabase.filter(p => 
+        p.role_eligibility && (p.role_eligibility.includes("رئيس تكتل") || p.role_eligibility.includes("تكتل"))
+    );
+    
     leaders.forEach(l => {
         const opt = document.createElement('option');
         opt.value = l.full_name; opt.textContent = l.full_name;
@@ -75,8 +88,8 @@ function syncClusterLeaderData() {
     const oInput = document.getElementById('c_registration_office');
     const leaderObj = globalStaffDatabase.find(p => p.full_name === selectedName);
     if (leaderObj) {
-        pInput.value = leaderObj.phone_number;
-        oInput.value = leaderObj.registration_office;
+        pInput.value = leaderObj.phone_number || "";
+        oInput.value = leaderObj.registration_office || "";
     } else {
         pInput.value = ""; oInput.value = "";
     }
@@ -86,9 +99,9 @@ function renderClusterStaffTable() {
     const tbody = document.getElementById('clusterTableBody');
     tbody.innerHTML = "";
     const config = [
-        { id: 'c_assistants_num', roleName: 'معاون رئيس التكتل' },
-        { id: 'c_coord_num', roleName: 'منسق تكتل إداري' },
-        { id: 'c_guides_num', roleName: 'موجهة دينية معتمدة' }
+        { id: 'c_assistants_num', roleName: 'معاون رئيس التكتل', searchKey: "معاون" },
+        { id: 'c_coord_num', roleName: 'منسق تكتل إداري', searchKey: "منسق" },
+        { id: 'c_guides_num', roleName: 'موجهة دينية معتمدة', searchKey: "موجه" }
     ];
     let index = 1;
     config.forEach(item => {
@@ -101,7 +114,7 @@ function renderClusterStaffTable() {
                 <td>
                     <select class="staff-select-input" onchange="syncStaffRowMeta(this); saveCurrentStateToLocalStorage();">
                         <option value="">-- اختر الاسم المعتمد بالصفة --</option>
-                        ${getOptionsByRole(item.roleName)}
+                        ${getOptionsByFlexibleRole(item.searchKey)}
                     </select>
                 </td>
                 <td><input type="text" class="row-approved-role" readonly placeholder="تلقائي"></td>
@@ -111,8 +124,11 @@ function renderClusterStaffTable() {
     });
 }
 
-function getOptionsByRole(roleName) {
-    const filtered = globalStaffDatabase.filter(p => p.role_eligibility === roleName);
+// دالة فرز مرنة وجديدة تبحث باحتواء الكلمة لضمان القراءة من الإكسل المرفوع
+function getOptionsByFlexibleRole(searchKey) {
+    const filtered = globalStaffDatabase.filter(p => 
+        p.role_eligibility && p.role_eligibility.includes(searchKey)
+    );
     return filtered.map(p => `<option value="${p.full_name}">${p.full_name}</option>`).join('');
 }
 
@@ -121,11 +137,17 @@ function syncStaffRowMeta(selectElement) {
     const roleInput = row.querySelector('.row-approved-role');
     const person = globalStaffDatabase.find(p => p.full_name === selectElement.value);
     if (person) {
-        roleInput.value = person.role_eligibility;
+        roleInput.value = person.role_eligibility || "";
     } else {
         roleInput.value = "";
     }
 }
+
+
+
+
+//////// كود المرحلة الثالثة
+
 
 let groupCounter = 1;
 function addNewDynamicGroupSection() {
@@ -134,6 +156,13 @@ function addNewDynamicGroupSection() {
     const div = document.createElement('div');
     div.className = 'group-card-container';
     div.id = `group_block_${gId}`;
+    
+    // تم هنا تحديث الفلتر برمجياً ليتطابق مع مسميات الإكسل المرفوع تلقائياً
+    const groupLeadersOptions = globalStaffDatabase
+        .filter(p => p.role_eligibility && p.role_eligibility.includes("رئيس مجموعة"))
+        .map(p => `<option value="${p.full_name}">${p.full_name}</option>`)
+        .join('');
+
     div.innerHTML = `
         <div class="section-title" style="background: var(--primary-light); display:flex; justify-content:space-between; align-items:center;">
             <span class="group-title-label">📦 مجموعة فرعية جديدة</span>
@@ -145,7 +174,7 @@ function addNewDynamicGroupSection() {
                 <label>اسم رئيس المجموعة</label>
                 <select class="g-leader-select" onchange="syncGroupLeaderData(${gId}); saveCurrentStateToLocalStorage();">
                     <option value="">-- اختر رئيس المجموعة --</option>
-                    ${globalStaffDatabase.filter(p => p.role_eligibility === "رئيس مجموعة").map(p => `<option value="${p.full_name}">${p.full_name}</option>`).join('')}
+                    ${groupLeadersOptions}
                 </select>
             </div>
             <div class="form-grid-cell"><label>رقم هاتف رئيس المجموعة</label><input type="text" class="g-leader-phone" readonly placeholder="تلقائي"></div>
@@ -178,8 +207,8 @@ function syncGroupLeaderData(gId) {
     const leaderName = block.querySelector('.g-leader-select').value;
     const person = globalStaffDatabase.find(p => p.full_name === leaderName);
     if (person) {
-        block.querySelector('.g-leader-phone').value = person.phone_number;
-        block.querySelector('.g-leader-office').value = person.registration_office;
+        block.querySelector('.g-leader-phone').value = person.phone_number || "";
+        block.querySelector('.g-leader-office').value = person.registration_office || "";
         block.querySelector('.g-categories').value = "1 فئة نشطة"; 
     } else {
         block.querySelector('.g-leader-phone').value = "";
@@ -196,19 +225,24 @@ function renderGroupStaffTable(gId) {
     const aCount = parseInt(block.querySelector('.g-assistants-count').value) || 0;
     const cCount = parseInt(block.querySelector('.g-clergy-count').value) || 0;
     let idx = 1;
-    for (let i = 0; i < aCount; i++) { appendGroupStaffRow(tbody, idx++, "معاون في المجموعة"); }
-    for (let i = 0; i < cCount; i++) { appendGroupStaffRow(tbody, idx++, "موجه في المجموعة"); }
+    for (let i = 0; i < aCount; i++) { appendGroupStaffRow(tbody, idx++, "معاون في المجموعة", "معاون"); }
+    for (let i = 0; i < cCount; i++) { appendGroupStaffRow(tbody, idx++, "موجه في المجموعة", "موجه"); }
 }
 
-function appendGroupStaffRow(tbody, index, roleName) {
+function appendGroupStaffRow(tbody, index, roleName, searchKey) {
     const row = document.createElement('tr');
+    const staffOptions = globalStaffDatabase
+        .filter(p => p.role_eligibility && p.role_eligibility.includes(searchKey))
+        .map(p => `<option value="${p.full_name}">${p.full_name}</option>`)
+        .join('');
+
     row.innerHTML = `
         <td>${index}</td>
         <td><strong>${roleName}</strong></td>
         <td>
             <select class="g-row-staff-select" onchange="syncStaffRowMeta(this); saveCurrentStateToLocalStorage();">
                 <option value="">-- اختر الاسم --</option>
-                ${globalStaffDatabase.filter(p => p.role_eligibility === roleName).map(p => `<option value="${p.full_name}">${p.full_name}</option>`).join('')}
+                ${staffOptions}
             </select>
         </td>
         <td><input type="text" class="row-approved-role" readonly placeholder="تلقائي"></td>
@@ -227,6 +261,8 @@ function updateGlobalMetrics() {
     document.getElementById('c_groups_num').value = totalGroups;
     document.getElementById('c_categories_num').value = totalGroups > 0 ? `${totalGroups} فئات نشطة` : "0 فئات";
 }
+
+ //////////////////////////////// كود المرحلة الرابعة
 function saveCurrentStateToLocalStorage() {
     const state = {
         c_name: document.getElementById('c_name').value,

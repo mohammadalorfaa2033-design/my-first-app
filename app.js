@@ -1,5 +1,5 @@
 const SUPABASE_URL = "https://nkcngzsjevgzurwxkjqn.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rY25nenNqZXZnenVyd3hranFuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTc1NDIxMSwiZXhwIjoyMTAxMzMwMjExfQ.uqLVpvVlj2q27q2k0LvQT0g0EX21EOhLduYF21fU_t0";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rY25nenNqZXZnenVyd3hranFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NTQyMTEsImV4cCI6MjEwMTMzMDIxMX0.2UlqfEPT-TCBGnIfHqn1sArX1AOkhRr6zvnQt4evD0U";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let CloudClusterValidationConfig = {}; // تعريف متغير القواعد السحابية العلوي
@@ -21,29 +21,35 @@ function handleEnterKey(event) {
 
 // ✅ ضع هذه الدالة المصلحة والمربوطة بالسحاب مكانها:
 async function authenticateUserGateway() {
-  const passcode = document.getElementById('accessPasscode').value;
-  
-  if (passcode === "Admin@123456") {
-    document.getElementById('gatekeeperSystem').style.display = 'none';
-    document.getElementById('leaderPlatform').style.display = 'block';
+    const passcode = document.getElementById('accessPasscode').value;
     
-    // 🍏 أولاً: جلب الضوابط والشروط الحية من جدول Supabase فورا
-    await fetchValidationRulesFromCloud();
+    // 🟢 1. الدخول الخاص بك (المدير العام) عند كتابة رمك السري
+    if (passcode === "Admin@123456") {
+        document.getElementById('gatekeeperSystem').style.display = 'none'; // إخفاء شاشة الدخول
+        document.getElementById('leaderPlatform').style.display = 'none';    // إخفاء منصة رئيس التكتل (سرّي)
+        document.getElementById('adminPlatform').style.display = 'block';    // إظهار لوحة تحكم الإدارة الخاصة بك فقط
+        
+        await loadApprovedClustersListForAdmin(); // جلب التشكيلات المرفوعة لك من السحاب فوراً
+    } 
     
-    // ثانياً: جلب كادرات التكتل والمجموعات المعتمدة
-    await loadInitialStaffFromCloud();
+    // 🔵 2. الدخول الخاص برئيس التكتل عند كتابة الرمز المخصص لهم
+    else if (passcode === "LeaderHajj@123") { 
+        document.getElementById('gatekeeperSystem').style.display = 'none'; // إخفاء شاشة الدخول
+        document.getElementById('adminPlatform').style.display = 'none';     // إخفاء لوحة الإدارة العامة (سرّي)
+        document.getElementById('leaderPlatform').style.display = 'block';   // إظهار منصة التعبئة الخاصة به فقط
+        
+        // جلب الضوابط والشروط واستعادة حالة العمل الخاصة برئيس التكتل
+        await fetchValidationRulesFromCloud();
+        await loadInitialStaffFromCloud();
+        loadStateFromLocalStorage();
+    } 
     
-    // ثالثاً: استعادة آخر حالة عمل محفوظة على الجهاز
-    loadStateFromLocalStorage();
-    
-  } else if (passcode === "AdminHajj@123456") {
-    document.getElementById('gatekeeperSystem').style.display = 'none';
-    document.getElementById('adminPlatform').style.display = 'block';
-    await loadApprovedClustersListForAdmin();
-  } else {
-    alert("رمز الصلاحية المعتمد غير صحيح لولايات المنظومة الرقمية السورية!");
-  }
+    // ❌ 3. في حال إدخال رمز خاطئ
+    else {
+        alert("رمز الصلاحية المعتمد غير صحيح لولايات المنظومة الرقمية السورية!");
+    }
 }
+
 
 
 
@@ -171,69 +177,65 @@ function getOptionsByRole(roleName) {
 
 // 3️⃣ تفعيل وتحديث دالة بناء جدول كادر التكتل الرئيسي في الواجهة
 function renderClusterStaffTable() {
-  const tbody = document.getElementById('clusterTableBody');
-  if (!tbody) return;
-
-  const config = [
-    { id: 'c_assistants_num', roleName: 'معاون' },
-    { id: 'c_coord_num', roleName: 'منسق تقني' },
-    { id: 'c_guides_num', roleName: 'موجهة دينية' }
-  ];
-
-  // 1. جمع الأسماء الحالية المكتوبة في الجدول قبل التعديل لتفادي ضياعها
-  const currentSelections = {};
-  config.forEach(item => {
-    currentSelections[item.roleName] = [];
-  });
-
-  // قراءة كل السطور المتواجدة حالياً وحفظ أسماء الموظفين المختارين
-  const existingRows = tbody.querySelectorAll('tr');
-  existingRows.forEach(row => {
-    const roleName = row.cells[1].textContent.trim();
-    const inputEl = row.querySelector('.staff-select-input');
-    if (inputEl && currentSelections[roleName]) {
-      currentSelections[roleName].push(inputEl.value); // حفظ الاسم
-    }
-  });
-
-  // 2. تفريغ الجدول بأمان لإعادة الترتيب الرقمي الصحيح فقط
-  tbody.innerHTML = "";
-  
-  let globalIndex = 1;
-
-  // 3. إعادة بناء الجدول مع استعادة الأسماء القديمة
-  config.forEach(item => {
-    const inputEl = document.getElementById(item.id);
-    const targetCount = inputEl ? (parseInt(inputEl.value) || 0) : 0;
-    
-    for (let i = 0; i < targetCount; i++) {
-      const row = document.createElement('tr');
-      const uniqueId = Math.floor(Math.random() * 999999);
-      
-      // استرجاع الاسم المختار سابقاً لهذا السطر إن وجد
-      const savedValue = (currentSelections[item.roleName] && currentSelections[item.roleName][i]) ? currentSelections[item.roleName][i] : "";
-
-      row.innerHTML = `
-        <td style="padding:5px; border:1px solid #ddd; text-align:center;">${globalIndex++}</td>
-        <td style="padding:5px; border:1px solid #ddd;"><strong>${item.roleName}</strong></td>
-        <td style="padding:5px; border:1px solid #ddd;">
-          <input type="text" class="staff-select-input" list="cluster_staff_list_${uniqueId}" 
-            value="${savedValue}" 
-            placeholder="اكتب اسم الـ ${item.roleName} للبحث..."
-            oninput="syncStaffRowMeta(this); saveCurrentStateToLocalStorage();" style="width:100%; padding:4px;">
-          
-          <datalist id="cluster_staff_list_${uniqueId}">
-            ${getOptionsByRole(item.roleName)}
-          </datalist>
-        </td>
-        <td style="padding:5px; border:1px solid #ddd; text-align:center;">
-          <input type="text" class="row-approved-role" readonly placeholder="تلقائي" value="${item.roleName}" style="width:100%; padding:4px; background:#f0f4f8; border:none; text-align:center;">
-        </td>
-      `;
-      tbody.appendChild(row);
-    }
-  });
-  
+ const tbody = document.getElementById('clusterTableBody');
+ if (!tbody) return;
+ const config = [
+ { id: 'c_assistants_num', roleName: 'معاون' },
+ { id: 'c_coord_num', roleName: 'منسق تقني' },
+ { id: 'c_guides_num', roleName: 'موجهة دينية' }
+ ];
+ 
+ // 1. جمع الأسماء الحالية المكتوبة في الجدول قبل التعديل لتفادي ضياعها
+ const currentSelections = {};
+ config.forEach(item => {
+   currentSelections[item.roleName] = [];
+ });
+ 
+ const existingRows = tbody.querySelectorAll('tr');
+ existingRows.forEach(row => {
+   const roleName = row.cells[1].textContent.trim();
+   const inputEl = row.querySelector('.staff-select-input');
+   if (inputEl && currentSelections[roleName]) {
+     currentSelections[roleName].push(inputEl.value); 
+   }
+ });
+ 
+ // 2. تفريغ الجدول بأمان لمنع التراكم والتعليق ✅
+ tbody.innerHTML = "";
+ let globalIndex = 1;
+ 
+ // 3. إعادة بناء الجدول وضخ السطور بناءً على الأرقام
+ config.forEach(item => {
+   const inputEl = document.getElementById(item.id);
+   const targetCount = inputEl ? (parseInt(inputEl.value) || 0) : 0;
+   
+   for (let i = 0; i < targetCount; i++) {
+     const row = document.createElement('tr');
+     const uniqueId = Math.floor(Math.random() * 999999);
+     
+     const savedValue = (currentSelections[item.roleName] && currentSelections[item.roleName][i]) ? currentSelections[item.roleName][i] : "";
+     
+     row.innerHTML = `
+     <td style="padding:5px; border:1px solid #ddd; text-align:center;">${globalIndex++}</td>
+     <td style="padding:5px; border:1px solid #ddd;"><strong>${item.roleName}</strong></td>
+     <td style="padding:5px; border:1px solid #ddd;">
+       <input type="text" class="staff-select-input" list="cluster_staff_list_${uniqueId}" 
+       value="${savedValue}" 
+       placeholder="اكتب اسم للبحث..." 
+       onchange="syncStaffRowMeta(this); checkClusterRulesRealTime(); saveCurrentStateToLocalStorage();" 
+       style="width:100%; padding:4px;">
+       
+       <datalist id="cluster_staff_list_${uniqueId}">
+         ${getOptionsByRole(item.roleName)}
+       </datalist>
+     </td>
+     <td style="padding:5px; border:1px solid #ddd; text-align:center;">
+       <input type="text" class="row-approved-role" readonly placeholder="تلقائي" value="${item.roleName}" style="width:100%; padding:4px; background:#f0f4f8; border:none; text-align:center;">
+     </td>
+     `;
+     tbody.appendChild(row);
+   }
+ });
 }
 
 
@@ -825,53 +827,164 @@ function useFallbackRules() {
 // ==========================================================================
 // 📊 ب: دالة الفحص الديناميكية المحدثة لتقرأ من المتغيرات السحابية
 // ==========================================================================
+
 function checkClusterRulesRealTime() {
-  const alertBar = document.getElementById('ministerial-validation-bar');
-  if (!alertBar || !CloudClusterValidationConfig.min_cluster_categories) return;
+    const alertBar = document.getElementById('ministerial-validation-bar');
+    if (!alertBar) return;
 
-  const assistantsCount = parseInt(document.getElementById('c_assistants_num').value) || 0;
-  const coordinatorsCount = parseInt(document.getElementById('c_coord_num').value) || 0;
-  const guidesCount = parseInt(document.getElementById('c_guides_num').value) || 0;
-  const groupBlocks = document.getElementById('dynamicGroupsWrapper').children;
-  
-  let totalClusterCategories = 0;
-  for (let block of groupBlocks) {
-    const gCategories = parseInt(block.querySelector('.g-categories').value) || 0;
-    totalClusterCategories += gCategories;
-  }
+    const assistantsCount = parseInt(document.getElementById('c_assistants_num').value) || 0;
+    const coordinatorsCount = parseInt(document.getElementById('c_coord_num').value) || 0;
+    const guidesCount = parseInt(document.getElementById('c_guides_num').value) || 0;
+    const groupBlocks = document.getElementById('dynamicGroupsWrapper').children;
+    
+    let totalClusterCategories = 0;
+    for (let block of groupBlocks) {
+        const gCategories = parseInt(block.querySelector('.g-categories').value) || 0;
+        totalClusterCategories += gCategories;
+    }
 
-  let errors = [];
+    let redErrors = [];    // للمخالفات الحرجة (اللون الأحمر)
+    let yellowWarnings = []; // للتنبيهات الإرشادية والزيادات (اللون الأصفر)
 
-  if (totalClusterCategories < CloudClusterValidationConfig.min_cluster_categories || totalClusterCategories > CloudClusterValidationConfig.max_cluster_categories) {
-    errors.push(`⚠️ مجموع الفئات الحالي (${totalClusterCategories} فئة). القرار يوجب أن يكون التشكيل بين ${CloudClusterValidationConfig.min_cluster_categories} و ${CloudClusterValidationConfig.max_cluster_categories} فئة.`);
-  }
-  if (assistantsCount !== CloudClusterValidationConfig.required_assistants) {
-    errors.push(`⚠️ عدد المعاونين المحدد (${assistantsCount}). الشروط تلزم بتسمية (${CloudClusterValidationConfig.required_assistants}) معاون واحد فقط للتكتل الرئيسي.`);
-  }
-  const requiredCoordinators = Math.floor(totalClusterCategories / CloudClusterValidationConfig.categories_per_coordinator);
-  if (coordinatorsCount < requiredCoordinators) {
-    errors.push(`⚠️ عدد المنسقين الحالي (${coordinatorsCount}). المطلوب منسق واحد عن كل ${CloudClusterValidationConfig.categories_per_coordinator} فئات (المطلوب لهذا الحجم: ${requiredCoordinators} منسقين).`);
-  }
-  const requiredGuides = Math.floor(totalClusterCategories / CloudClusterValidationConfig.categories_per_guide);
-  if (guidesCount < requiredGuides) {
-    errors.push(`⚠️ عدد الموجهات الحالي (${guidesCount}). المطلوب موجهة واحدة عن كل ${CloudClusterValidationConfig.categories_per_guide} فئات (المطلوب لهذا الحجم: ${requiredGuides} موجهات).`);
-  }
+    // 1. فحص نطاق الفئات الكلية للتشكيل
+    const minCat = CloudClusterValidationConfig.min_cluster_categories || 15;
+    const maxCat = CloudClusterValidationConfig.max_cluster_categories || 21;
+    if (totalClusterCategories < minCat || totalClusterCategories > maxCat) {
+        redErrors.push(`القرار يوجب أن يكون مجموع الفئات بين ${minCat} و ${maxCat} فئة (الحالي: ${totalClusterCategories} فئة).`);
+    }
 
-  if (errors.length > 0) {
-    alertBar.style.backgroundColor = "#fef2f2";
-    alertBar.style.borderColor = "#fca5a5";
-    alertBar.style.color = "#991b1b";
-    alertBar.innerHTML = `
-      <div style="font-size: 15px; margin-bottom: 5px;">🚨 <strong>تنبيـه تنظيمي: التشكيل الحالي يحتوي على مخالفات لشروط القرار الإداري رقم 47:</strong></div>
-      <ul style="margin: 0; padding-right: 20px; font-weight: normal; font-size: 13px; line-height: 1.8;">
-        ${errors.map(err => `<li>${err}</li>`).join('')}
-      </ul>
-    `;
-  } else {
-    alertBar.style.backgroundColor = "#ecfdf5";
-    alertBar.style.borderColor = "#a7f3d0";
-    alertBar.style.color = "#065f46";
-    alertBar.innerHTML = `✨ <strong>تشكيل نظامي ممتاز:</strong> كافة البيانات المدخلة متطابقة ومتوافقة تماماً مع ضوابط مديرية الحج والعمرة.`;
-  }
+    // 2. فحص المعاونين
+    const reqAssistants = CloudClusterValidationConfig.required_assistants || 1;
+    if (assistantsCount < reqAssistants) {
+        redErrors.push(`يوجد نقص في عدد المعاونين (المطلب الوزاري: ${reqAssistants} معاون فقط).`);
+    } else if (assistantsCount > reqAssistants) {
+        yellowWarnings.push(`ملاحظة: يوجد كادر معاون إضافي زائد عن الشروط المحددة.`);
+    }
+
+    // 3. حسبة المنسقين مع التقريب الإداري (0.5)
+    const coordDivisor = CloudClusterValidationConfig.categories_per_coordinator || 6;
+    const exactCoordinators = totalClusterCategories / coordDivisor; // الحسبة الحقيقية
+    
+    // تطبيق القاعدة: إذا كان الكسر 0.5 أو أكثر يقرب للأعلى، وإلا يقرب للأسفل
+    const requiredCoordinators = Math.round(exactCoordinators); 
+
+    if (coordinatorsCount < requiredCoordinators) {
+        redErrors.push(`يوجد نقص حرج في عدد المنسقين (المطلوب بعد التقريب: ${requiredCoordinators} منسقين، الحالي: ${coordinatorsCount}).`);
+    } else if (coordinatorsCount > requiredCoordinators) {
+        // إذا زاد المستخدم عن المطلوب الفعلي بعد الحسبة والتقريب 🟡
+        yellowWarnings.push(`ملاحظة تنبيهية: يوجد منسق تقني إضافي زائد عن شروط التقريب الإداري المعتمَد.`);
+    }
+
+    // 4. حسبة الموجهات مع التقريب الإداري (0.5)
+    const guideDivisor = CloudClusterValidationConfig.categories_per_guide || 7;
+    const exactGuides = totalClusterCategories / guideDivisor; // الحسبة الحقيقية
+    
+    // تطبيق القاعدة: إذا كان الكسر 0.5 أو أكثر يقرب للأعلى، وإلا يقرب للأسفل
+    const requiredGuides = Math.round(exactGuides); 
+
+    if (guidesCount < requiredGuides) {
+        redErrors.push(`يوجد نقص حرج في عدد الموجهات (المطلوب بعد التقريب: ${requiredGuides} موجهات، الحالي: ${guidesCount}).`);
+    } else if (guidesCount > requiredGuides) {
+        // إذا زادت الموجهات عن المطلوب الفعلي بعد الحسبة والتقريب 🟡
+        yellowWarnings.push(`ملاحظة تنبيهية: توجد موجهة دينية إضافية زائدة عن شروط التقريب الإداري المعتمَد.`);
+    }
+
+    // 5. التحكم في مظهر شريط التنبيهات بناءً على النتائج المحدثة
+    if (redErrors.length > 0) {
+        alertBar.style.backgroundColor = "#fef2f2";
+        alertBar.style.borderColor = "#fca5a5";
+        alertBar.style.color = "#991b1b";
+        alertBar.innerHTML = `
+            <div style="font-size: 15px; margin-bottom: 5px;"><strong>🚨 تنبيـه تنظيمي حرج: التشكيل يحتوي على مخالفات لشروط القرار الإداري رقم ٤٧</strong></div>
+            <ul style="margin: 0; padding-right: 20px; font-weight: normal; font-size: 13px; line-height: 1.8;">
+                ${redErrors.map(err => `<li>${err}</li>`).join('')}
+            </ul>`;
+    } else if (yellowWarnings.length > 0) {
+        // تفعيل الإضاءة الصفراء فور وجود أي زيادة إدارية عن الحسبة المقربة 🟡
+        alertBar.style.backgroundColor = "#fefcbf";
+        alertBar.style.borderColor = "#f6e05e";
+        alertBar.style.color = "#744210";
+        alertBar.innerHTML = `
+            <div style="font-size: 15px; margin-bottom: 5px;"><strong>⚠️ إشعار إداري: تم رصد كادر إداري إضافي زائد عن شروط التشكيل المقرّبة</strong></div>
+            <ul style="margin: 0; padding-right: 20px; font-weight: normal; font-size: 13px; line-height: 1.8;">
+                ${yellowWarnings.map(wrn => `<li>${wrn}</li>`).join('')}
+            </ul>`;
+    } else {
+        alertBar.style.backgroundColor = "#ecfdf5";
+        alertBar.style.borderColor = "#a7f3d0";
+        alertBar.style.color = "#065f46";
+        alertBar.innerHTML = `✨ <strong>كافة البيانات المدخلة متطابقة!</strong> تشكيل نظامي ممتاز ومتوافق تماماً مع ضوابط مديرية الحج والعمرة مع احتساب قاعدة التقريب.`;
+    }
 }
+// الدالة الجديدة: سحب وفحص الصلاحيات وكلمات المرور مباشرة من السحاب بأمان
+async function authenticateUserGateway() {
+    const usernameInput = document.getElementById('accessUsername').value.trim();
+    const passcodeInput = document.getElementById('accessPasscode').value;
+    const loginButton = document.querySelector('.btn-primary');
 
+    // التحقق من تعبئة الحقول أولاً قبل إرهاق السيرفر
+    if (!usernameInput || !passcodeInput) {
+        alert("يرجى إدخال اسم المستخدم وكلمة المرور معاً!");
+        return;
+    }
+
+    // تغيير مظهر الزر لإعلام المستخدم بجاري الفحص السحابي
+    const originalButtonText = loginButton.innerHTML;
+    loginButton.innerHTML = "⏳ جاري التحقق من السحاب...";
+    loginButton.disabled = true;
+
+    try {
+        // 1. الاتصال بالسحاب وجلب بيانات الحساب المطابق لاسم المستخدم
+        // يفترض وجود جدول في Supabase يحتوي على الأعمدة (username, password, role)
+        const { data: userAccount, error } = await supabaseClient
+            .from('hajj_system_users') // اسم الجدول السحابي المخصص للمستخدمين
+            .select('*')
+            .eq('username', usernameInput)
+            .maybeSingle(); // جلب سجل فردي واحد فقط مطابِق بأمان
+
+        if (error) throw error;
+
+        // 2. التحقق من وجود الحساب ومطابقة كلمة المرور القادمة حية من السحاب
+        if (userAccount && userAccount.password === passcodeInput) {
+            
+            // إخفاء بوابة الحماية فوراً بعد النجاح
+            document.getElementById('gatekeeperSystem').style.display = 'none';
+
+            // 3. توجيه المستخدم ديناميكياً بناءً على صلاحيته (role) المخزنة في السحاب
+            if (userAccount.role === "Admin" || userAccount.role === "مدير عام") {
+                // توجيه لـ لوحة تحكم المدير العام
+                document.getElementById('leaderPlatform').style.display = 'none';
+                document.getElementById('adminPlatform').style.display = 'block';
+                
+                await loadApprovedClustersListForAdmin(); // جلب التشكيلات المرفوعة فوراً
+            } 
+            else if (userAccount.role === "Leader" || userAccount.role === "رئيس تكتل") {
+                // توجيه لـ منصة التعبئة الميدانية لرئيس التكتل
+                document.getElementById('adminPlatform').style.display = 'none';
+                document.getElementById('leaderPlatform').style.display = 'block';
+                
+                // جلب الضوابط والشروط واستعادة حالة العمل
+                await fetchValidationRulesFromCloud();
+                await loadInitialStaffFromCloud();
+                loadStateFromLocalStorage();
+            } 
+            else {
+                alert("صلاحية هذا الحساب غير معرّفة بالمنظومة، يرجى مراجعة الدعم الفني.");
+                // إعادة تصدير شاشة الدخول
+                document.getElementById('gatekeeperSystem').style.display = 'block';
+            }
+
+        } else {
+            // في حال عدم التطابق أو عدم وجود الحساب
+            alert("اسم المستخدم أو كلمة المرور السحابية غير صحيحة!");
+        }
+
+    } catch (err) {
+        console.error("خطأ حرج أثناء سحب الصلاحيات من السحاب:", err);
+        alert("فشل الاتصال بالسحاب للتحقق من الهوية، يرجى التأكد من الإنترنت أو إعدادات الجدول!");
+    } finally {
+        // إعادة الزر لوضعه الطبيعي في كل الأحوال
+        loginButton.innerHTML = originalButtonText;
+        loginButton.disabled = false;
+    }
+}

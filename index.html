@@ -4,132 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>النظام المتقدم لإدارة التكتلات | مديرية الحج والعمرة</title>
-    
-    <!-- 🌟 تم استبدال الرابط الخاطئ بالروابط الرسمية المباشرة والمضمونة لقراءة الإكسل -->
-    <script src="https://cloudflare.com"></script>
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- 1️⃣ الواجهة الأولى: شاشة تسجيل الدخول وبوابة الحماية المشروطة -->
-<div class="login-screen" id="gatekeeperSystem">
-    <span class="main-logo">🕋</span>
-    <h3>منظومة الحج والعمرة الرقمية السحابية</h3>
-    <p class="subtitle">الجمهورية العربية السورية - وزارة الأوقاف</p>
-    
-    <div class="input-group-wrapper" style="text-align: right; margin-bottom: 20px;">
-        <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 8px;">أدخل رمز الصلاحية المعتمد لولايات النظام:</label>
-        <div class="password-container">
-            <input type="password" id="accessPasscode" placeholder="••••••••••••" onkeydown="handleEnterKey(event)">
-            <span class="toggle-password" id="eyeIcon" onclick="togglePasswordVisibility()">👁️</span>
+    <!-- الواجهة الأولى: شاشة تسجيل الدخول وبوابة الحماية المطورة متمركزة في الوسط -->
+    <div class="login-screen" id="gatekeeperSystem" style="text-align: center; max-width: 400px; margin: 0 auto; padding: 20px;">
+        <span class="main-logo" style="display: block; font-size: 40px; margin-bottom: 10px;">🕋</span>
+        <h3 style="text-align: center; margin-bottom: 5px;">منظومة الحج والعمرة الرقمية السحابية</h3>
+        <p class="subtitle" style="text-align: center; color: #718096; margin-bottom: 25px;">الجمهورية العربية السورية - وزارة الأوقاف</p>
+        
+        <!-- حقل اسم المستخدم ممركز في الوسط -->
+        <div class="input-group-wrapper" style="text-align: center; margin-bottom: 15px;">
+            <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 8px; text-align: center;">اسم المستخدم</label>
+            <input type="text" id="accessUsername" placeholder="أدخل اسم المستخدم المعتمد" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; text-align: center;">
         </div>
-    </div>
-    
-    <button class="btn btn-primary btn-block" onclick="authenticateUserGateway()">🔓 التحقق الآمن ومزامنة الواجهة المعتمدة</button>
-</div>
-
-<!-- 2️⃣ الواجهة الثانية: واجهة رئيس التكتل الميدانية -->
-<div class="container" id="leaderPlatform" style="display:none;">
-    <div class="official-header">
-        <div style="font-size:12px;">Syrian Arab Republic<br>Directorate of Hajj and Umrah</div>
-        <div style="text-align:center;"><strong>الجمهورية العربية السورية</strong><br>وزارة الأوقاف | مديرية الحج والعمرة</div>
-        <div style="font-size:12px; text-align:left;">الجمهورية العربية السورية<br>مديرية الحج والعمرة</div>
-    </div>
-
-    <!-- شريط الأدوات العلوي مع تباعد الأزرار لعدم الاختلاط على رئيس التكتل -->
-    <!-- 🟢 هذا هو الترتيب الجديد المطلوب من اليمين إلى اليسار -->
-    <div class="actions-bar" style="display: flex; justify-content: space-between; align-items: center; direction: rtl; width: 100%;">
-        <!-- أقصى اليمين: زر اعتماد التشكيل -->
-        <button class="btn btn-danger" id="btnApproveCluster" onclick="approveCluster()">🔒 قفل واعتماد التشكيل السحابي</button>
         
-        <!-- في المنتصف: حالة المزامنة الخضراء الهادئة -->
-        <div id="adminStatusLogs" style="color: var(--success-color); font-weight: bold; font-size: 14px;">🟢 تم مزامنة كوادر موسم 1448 بنجاح</div>
+        <!-- حقل كلمة المرور ممركز في الوسط -->
+        <div class="input-group-wrapper" style="text-align: center; margin-bottom: 25px;">
+            <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 8px; text-align: center;">كلمة المرور</label>
+            <div class="password-container" style="position: relative; display: flex; align-items: center; justify-content: center;">
+                <input type="password" id="accessPasscode" placeholder="••••••••••••" onkeydown="handleEnterKey(event)" style="width: 100%; padding: 10px; padding-left: 35px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; text-align: center;">
+                <span class="toggle-password" id="eyeIcon" onclick="togglePasswordVisibility()" style="position: absolute; left: 10px; cursor: pointer; user-select: none;">👁</span>
+            </div>
+        </div>
         
-        <!-- أقصى اليسار: زر تصدير الـ PDF -->
-        <button class="btn btn-success" id="btnPrintReport" onclick="window.print()">🖨️ تصدير التشكيل المعتمد PDF</button>
+        <button class="btn btn-primary btn-block" onclick="authenticateUserGateway()" style="width: 100%; padding: 12px; font-weight: bold;">🔐 التحقق الآمن ومزامنة الواجهة</button>
     </div>
 
+    <!-- الواجهة الثانية: واجهة رئيس التكتل الميدانية -->
+    <div class="container" id="leaderPlatform" style="display:none;">
+        <div class="official-header">
+            <div>Syrian Arab Republic<br>Directorate of Hajj and Umrah</div>
+            <div style="text-align:center;"><strong>الجمهورية العربية السورية<br>وزارة الأوقاف | مديرية الحج والعمرة</strong></div>
+            <div style="text-align:left;">مديرية الحج والعمرة</div>
+        </div> 
 
+        <div class="actions-bar" style="display: flex; justify-content: space-between; align-items: center; direction: rtl; width: 100%; gap: 10px; margin-bottom: 15px;">
+            <div style="display: flex; gap: 10px;">
+                <!-- تعديل دالة الاستدعاء المباشرة لتطابق الكود المصلح بقاعدة البيانات السحابية -->
+                <button class="btn btn-danger" id="btnLockCluster" onclick="commitAndLockCluster()">🔒 قفل واعتماد التشكيل السحابي</button>
+                <!-- إضافة زر إلغاء الإرسال المفقود المطلوب برمجياً للتراجع السريع -->
+                <button class="btn btn-warning" id="btnCancelSubmission" style="display: none; background-color: #ed8936; color: white;">🔓 إلغاء الإرسال والتعديل</button>
+            </div>
+            <div id="adminStatusLogs" style="color: var(--success-color); font-weight: bold; font-size: 14px;">🟢 تم مزامنة كوادر موسم ١٤٤٨ بنجاح</div>
+            <button class="btn btn-success" id="btnPrintReport" onclick="window.print()">🖨 تصدير التشكيل المعتمد PDF</button>
+        </div> 
 
-    <!-- العنوان الأول: تقرير عن التكتل مرتب حسب كراسة الشروط تماماً -->
-     
-    <div class="section-title">📊 القسم الأول: تقرير التشكيل السحابي للتكتل</div>
-    <!-- شريط التنبيهات الوزاري الدائم والمطور -->
+        <div class="section-title">📊 القسم الأول: تقرير التشكيل السحابي للتكتل</div>
         <div id="ministerial-validation-bar" style="background: #fef2f2; border: 1px solid #fee2e2; color: #991b1b; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; font-size: 14px; display: flex; flex-direction: column; gap: 5px; direction: rtl; text-align: right;">
-        📢 حالة مطابقة الشروط الوزارية: جاري فحص البيانات...
+            📢 حالة مطابقة الشروط الوزارية: جاري فحص البيانات...
+        </div> 
+
+        <div class="form-grid"> 
+            <div class="form-grid-cell">
+                <label>اسم التكتل</label>
+                <input type="text" id="c_name" placeholder="التكتل الرئيسي رقم ١" oninput="saveCurrentStateToLocalStorage()">
+            </div>
+            <div class="form-grid-cell">
+                <label>اسم رئيس التكتل (ابحث هنا)</label>
+                <input type="text" id="c_leader_select" list="cluster_leaders_global_list" placeholder="اكتب للبحث عن رئيس التكتل..." oninput="syncClusterLeaderData(); saveCurrentStateToLocalStorage();" style="width:100%; padding:5px;">
+                <datalist id="cluster_leaders_global_list"></datalist> 
+            </div>
+            <div class="form-grid-cell">
+                <label>رقم هاتف رئيس التكتل</label>
+                <input type="text" id="c_leader_phone" readonly placeholder="يُجلب تلقائياً">
+            </div>
+            <div class="form-grid-cell">
+                <label>مكتب التسجيل</label>
+                <input type="text" id="c_registration_office" readonly placeholder="يُجلب تلقائياً">
+            </div>
+            <div class="form-grid-cell">
+                <label>عدد المجموعات المنضوية</label>
+                <input type="number" id="c_groups_num" value="0" readonly>
+            </div>
+            <div class="form-grid-cell">
+                <label>عدد الفئات ضمن التكتل</label>
+                <input type="text" id="c_categories_num" readonly placeholder="تلقائي من المجموعات">
+            </div>
+            <div class="form-grid-cell">
+                <label>عدد المعاونين</label>
+                <input type="number" id="c_assistants_num" value="0" min="0" oninput="renderClusterStaffTable(); checkClusterRulesRealTime(); saveCurrentStateToLocalStorage();">
+            </div>
+            <div class="form-grid-cell">
+                <label>عدد المنسقين</label>
+                <input type="number" id="c_coord_num" value="0" min="0" oninput="checkClusterRulesRealTime(); saveCurrentStateToLocalStorage();">
+            </div>
+            <div class="form-grid-cell">
+                <label>عدد الموجهات</label>
+                <input type="number" id="c_guides_num" value="0" min="0" oninput="checkClusterRulesRealTime(); saveCurrentStateToLocalStorage();">
+            </div>
+        </div> 
+
+        <div class="section-title">📋 القسم الثاني: الهيكل الإداري المعتمد لكادر التكتل</div>
+        <table id="clusterStaffTable"> 
+            <thead> 
+                <tr>
+                    <th style="width:10%;">الرقم</th>
+                    <th style="width:30%;">الصفة الرئيسية في التكتل</th>
+                    <th style="width:40%;">الاسم المعتمد</th>
+                    <th style="width:20%;">الصفة المعتمدة</th>
+                </tr>
+            </thead> 
+            <tbody id="clusterTableBody"></tbody> 
+        </table>
+
+        <!-- حاوية الحقن الديناميكي للمجموعات المضافة برمجياً -->
+        <div id="dynamicGroupsWrapper"></div> 
+
+        <div class="add-group-action-container" style="margin-top: 20px; text-align: center;"> 
+            <button id="btnAddGroup" class="btn btn-warning" style="font-size: 14px; padding: 12px 25px;" onclick="addNewDynamicGroupSection()">➕ إضافة مجموعات جديدة للتكتل</button>
+        </div> 
+
+        <div class="official-footer"> 
+            <div>تصديق رئيس لجنة التشكيل</div> 
+            <div>اعتماد مديرية الحج والعمرة</div> 
+        </div> 
+    </div>
+
+    <!-- الواجهة الثالثة: واجهة الإدارة العليا (المقيدة) لمتابعة البيانات من Supabase -->
+    <div class="container" id="adminPlatform" style="display:none; padding: 20px; background: #f7fafc; min-height: 100vh; border-top: 5px solid #1a202c;">
+        <!-- واجهة لوحة تحكم المسؤول يتم إدارتها برمجياً بالكامل لتلقي تقارير المزامنة السحابية -->
+        <div class="section-title">💻 لوحة تحكم الإدارة العامة والرقابة الوزارية</div>
+        <div style="margin-bottom: 20px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 8px;">اختر التشكيل المعتمد لاستعراض البيانات الميدانية:</label>
+            <select id="adminClusterSelector" onchange="loadApprovedClusterDetailsFromSupabase()" style="padding: 8px; width: 100%; max-width: 400px; border-radius: 4px; border: 1px solid #ccc;"></select>
         </div>
-
-    <div class="form-grid">
-        <div class="form-grid-cell"><label>اسم التكتل</label><input type="text" id="c_name" placeholder="التكتل الرئيسي رقم 1" oninput="saveCurrentStateToLocalStorage()"></div>
-        <div class="form-grid-cell">
-            <!--  ضع هذه الأسطر المطورة مكانها للتحول إلى البحث الذكي الفوري: -->
-            <label>اسم رئيس التكتل (ابحث هنا)</label>
-            <input type="text" id="c_leader_select" list="cluster_leaders_global_list" placeholder="اكتب للبحث عن رئيس التكتل..."
-            oninput="syncClusterLeaderData(); saveCurrentStateToLocalStorage();" style="width:100%; padding:5px;">
-
-            <!-- خزان الأسماء الذكي التابع للحقل -->
-            <datalist id="cluster_leaders_global_list"></datalist>
-            
-        </div>
-        <div class="form-grid-cell"><label>رقم هاتف رئيس التكتل</label><input type="text" id="c_leader_phone" readonly placeholder="يُجلب تلقائياً"></div>
-        
-        <div class="form-grid-cell"><label>مكتب التسجيل</label><input type="text" id="c_registration_office" readonly placeholder="يُجلب تلقائياً"></div>
-        <div class="form-grid-cell"><label>عدد المجموعات المنضوية</label><input type="number" id="c_groups_num" value="0" readonly></div>
-        <div class="form-grid-cell"><label>عدد الفئات ضمن التكتل</label><input type="text" id="c_categories_num" readonly placeholder="تلقائي من المجموعات"></div>
-        
-        <div class="form-grid-cell"><label>عدد المعاونين</label><input type="number" id="c_assistants_num" value="0" min="0" oninput="renderClusterStaffTable(); saveCurrentStateToLocalStorage();"></div>
-        <div class="form-grid-cell"><label>عدد المنسقين</label><input type="number" id="c_coord_num" value="0" min="0" oninput="renderClusterStaffTable(); saveCurrentStateToLocalStorage();"></div>
-        <div class="form-grid-cell"><label>عدد الموجهات</label><input type="number" id="c_guides_num" value="0" min="0" oninput="renderClusterStaffTable(); saveCurrentStateToLocalStorage();"></div>
+        <div id="adminDataDisplayArea" style="display: none; margin-top: 20px;"></div>
     </div>
 
-    <!-- العنوان الثاني: الكادر الإداري في التكتل -->
-    <div class="section-title">👥 القسم الثاني: الهيكل الإداري المعتمد لكادر التكتل</div>
-
-    <table id="clusterStaffTable">
-        <thead>
-            <tr><th style="width:10%;">الرقم</th><th style="width:30%;">الصفة الرئيسية في التكتل</th><th style="width:40%;">الاسم</th><th style="width:20%;">الصفة المعتمدة</th></tr>
-        </thead>
-        <tbody id="clusterTableBody"></tbody>
-    </table>
-
-    <!-- الحاوية الحركية للمجموعات الفرعية المضافة مسبقاً -->
-    <div id="dynamicGroupsWrapper"></div>
-
-    <div class="add-group-action-container">
-        <button id="btnAddGroup" class="btn btn-warning" style="font-size: 14px; padding: 12px 25px;" onclick="addNewDynamicGroupSection()">➕ إضافة مجموعات جديدة للتكتل</button>
-    </div>
-
-    <div class="official-footer">
-        <div>تصديق رئيس لجنة التشكيل</div>
-        <div>اعتماد مديرية الحج والعمرة</div>
-    </div>
-</div>
-
-<!-- 3️⃣ الواجهة الثالثة: واجهة الإدارة العليا لمتابعة البيانات من supadate -->
-<div class="container" id="adminPlatform" style="display:none;">
-    <div class="official-header">
-        <div style="font-size:12px;">Syrian Arab Republic<br>Directorate of Hajj and Umrah</div>
-        <div style="text-align:center;"><strong>الجمهورية العربية السورية</strong><br>وزارة الأوقاف | مديرية الحج والعمرة</div>
-        <div style="font-size:12px; text-align:left;">واجهة الإدارة والمتابعة العليا</div>
-    </div>
-
-    <div class="global-actions-bar" style="background: #fff3cd; border: 1px solid #ffeeba;">
-        <div style="font-size:14px; font-weight:bold; color:#856404;">👁️ لوحة المتابعة والتدقيق المركزي للتكتلات المعتمدة</div>
-        <button class="btn btn-primary" onclick="location.reload()">🔄 تسجيل الخروج والعودة</button>
-    </div>
-
-    <div style="background:#f8f9fa; padding:20px; border-radius:6px; border:1px solid #ccc; margin-bottom:20px;">
-        <label style="font-weight:bold; font-size:14px; display:block; margin-bottom:10px;">اختر التكتل المعتمد لاستعراض البيانات الحية من supadate:</label>
-        <select id="adminClusterSelector" style="max-width:400px; padding:10px;" onchange="loadApprovedClusterDetailsFromSupabase()">
-            <option value="">-- استعراض التكتلات المعتمدة حالياً --</option>
-        </select>
-    </div>
-
-    <div id="adminDataDisplayArea" style="display:none;"></div>
-</div>
-
-<script src="supabase-client.js"></script>
-<script src="app.js"></script>
+    <!-- استدعاء ملفات المزامنة والربط الخارجية السحابية للمنظومة -->
+    <script src="supabase-client.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
